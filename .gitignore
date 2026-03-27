@@ -1,0 +1,6 @@
+# Upstream clone (used during sync, should not be committed)
+_upstream/
+
+# Python
+__pycache__/
+*.pyc
