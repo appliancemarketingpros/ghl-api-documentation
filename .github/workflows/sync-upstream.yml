@@ -1,0 +1,89 @@
+name: Sync GoHighLevel API Documentation
+
+on:
+  # Run daily at 6:00 AM UTC
+  schedule:
+    - cron: '0 6 * * *'
+
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clone upstream GoHighLevel API docs
+        run: |
+          rm -rf _upstream
+          git clone --depth 1 https://github.com/GoHighLevel/highlevel-api-docs.git _upstream
+          echo "UPSTREAM_SHA=$(cd _upstream && git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Check if upstream has changed
+        id: check_changes
+        run: |
+          # Store the upstream commit SHA for comparison
+          LAST_SYNCED_SHA=""
+          if [ -f .last-synced-sha ]; then
+            LAST_SYNCED_SHA=$(cat .last-synced-sha)
+          fi
+
+          echo "Last synced SHA: $LAST_SYNCED_SHA"
+          echo "Current upstream SHA: $UPSTREAM_SHA"
+
+          if [ "$LAST_SYNCED_SHA" = "$UPSTREAM_SHA" ]; then
+            echo "No changes detected in upstream repository."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in upstream repository."
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Python
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run conversion script
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          python .github/scripts/convert_api_docs.py
+
+      - name: Save upstream SHA
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          echo "$UPSTREAM_SHA" > .last-synced-sha
+
+      - name: Clean up upstream clone
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          rm -rf _upstream
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          # Only commit if there are actual file changes
+          if git diff --cached --quiet; then
+            echo "No file changes to commit."
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+            git commit -m "Sync with upstream GoHighLevel API docs ($TIMESTAMP)
+
+            Upstream commit: GoHighLevel/highlevel-api-docs@${UPSTREAM_SHA:0:7}
+            Automated sync via GitHub Actions"
+            git push
+            echo "Changes committed and pushed successfully."
+          fi
