@@ -2,7 +2,7 @@
 
 Comprehensive API documentation for the GoHighLevel (HighLevel) platform, converted to Markdown format for easy reference and integration.
 
-> **Source:** This documentation is derived from the [official GoHighLevel API V2 documentation](https://marketplace.gohighlevel.com/docs/) and the [GoHighLevel API docs repository](https://github.com/GoHighLevel/highlevel-api-docs).
+> **Source:** This documentation is automatically synced from the [official GoHighLevel API V2 documentation](https://marketplace.gohighlevel.com/docs/) and the [GoHighLevel API docs repository](https://github.com/GoHighLevel/highlevel-api-docs). It is checked for updates daily via GitHub Actions.
 
 ## Table of Contents
 
