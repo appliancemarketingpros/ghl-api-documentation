@@ -12,6 +12,7 @@ Documentation for Conversations API
 
 - [Search](#search)
 - [Conversations](#conversations)
+- [Preference Management](#preference-management)
 - [Email](#email)
 - [Messages](#messages)
 - [Providers](#providers)
@@ -46,15 +47,17 @@ Returns a list of all conversations matching the search criteria along with the 
 | `startAfterDate` | query | any | No | Search to begin after the specified date - should contain the sort value of the last document |
 | `id` | query | string | No | Id of the conversation |
 | `limit` | query | number | No | Limit of conversations - Default is 20 |
-| `lastMessageType` | query | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | No | Type of the last message in the conversation as a string |
+| `lastMessageType` | query | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_TIKTOK_COMMENT`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`, `TYPE_SMS_REACTION`) | No | Type of the last message in the conversation as a string |
 | `lastMessageAction` | query | string (enum: `automated`, `manual`) | No | Action of the last outbound message in the conversation as string. |
 | `lastMessageDirection` | query | string (enum: `inbound`, `outbound`) | No | Direction of the last message in the conversation as string. |
 | `status` | query | string (enum: `all`, `read`, `unread`, `starred`, `recents`) | No | The status of the conversation to be filtered - all, read, unread, starred  |
-| `sortBy` | query | string (enum: `last_manual_message_date`, `last_message_date`, `score_profile`) | No | The sorting of the conversation to be filtered as - manual messages or all messages |
+| `sortBy` | query | string (enum: `last_manual_message_date`, `last_message_date`, `score_profile`, `overdue_at`, `due_at`) | No | The sorting of the conversation to be filtered as - manual messages or all messages |
 | `sortScoreProfile` | query | string | No | Id of score profile on which sortBy.ScoreProfile should sort on |
 | `scoreProfile` | query | string | No | Id of score profile on which conversations should get filtered out, works with scoreProfileMin & scoreProfileMax |
 | `scoreProfileMin` | query | number | No | Minimum value for score |
 | `scoreProfileMax` | query | number | No | Maximum value for score |
+| `startDate` | query | number | No | Start date filter for dateAdded field (Unix timestamp in milliseconds) |
+| `endDate` | query | number | No | End date filter for dateAdded field (Unix timestamp in milliseconds) |
 
 #### Responses
 
@@ -237,6 +240,199 @@ Creates a new conversation with the data provided
 
 ---
 
+## Preference Management
+
+### GET `/conversations/preferences/custom-subtypes`
+
+**Get All Custom Subtypes**
+
+Get all custom subtypes for a location
+
+**Operation ID:** `get-all-custom-subtypes`
+
+**Tags:** Preference Management
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes | Location Id |
+
+#### Responses
+
+**`200` - **
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
+### POST `/conversations/preferences/custom-subtypes`
+
+**Create Custom Subtype**
+
+Create a new custom subtype for a location. Requires agency or account admin role.
+
+**Operation ID:** `create-custom-subtype`
+
+**Tags:** Preference Management
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes | Location Id |
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name of the custom subtype (max 100 characters) |
+| `description` | string | No | Description of the custom subtype (max 100 characters) |
+| `channel` | string (enum: `email`, `sms`) | Yes | Communication channel |
+| `language` | string | Yes | Language code |
+
+#### Responses
+
+**`200` - Successful response**
+
+**`201` - **
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
+### PUT `/conversations/preferences/custom-subtypes/{id}`
+
+**Update Custom Subtype**
+
+Update or archive a custom subtype. Requires agency or account admin role.
+
+**Operation ID:** `update-custom-subtype`
+
+**Tags:** Preference Management
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Custom Subtype Id |
+| `locationId` | query | string | Yes | Location Id |
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | No | Name of the custom subtype (max 100 characters) |
+| `description` | string | No | Description of the custom subtype (max 100 characters) |
+| `archived` | boolean | No | Whether the custom subtype is archived |
+| `resubscription_legal_form_id` | string | No | Resubscription legal form ID (optional when archiving) |
+
+#### Responses
+
+**`200` - **
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
+### GET `/conversations/preferences/unsubscriptions/status`
+
+**Get Contact Unsubscription Status**
+
+Get all subscription statuses for a contact (all emails or specific email)
+
+**Operation ID:** `get-contact-unsubscription-status`
+
+**Tags:** Preference Management
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes | Location Id |
+| `contactId` | query | string | Yes | Contact Id |
+| `email` | query | string | No | Email address (optional - if not provided, gets all emails for contact) |
+
+#### Responses
+
+**`200` - **
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
+### POST `/conversations/preferences/unsubscriptions/user-change`
+
+**User Subscription Change**
+
+Process subscription change initiated by a user (admin/agent). Supports individual custom subscription changes and resub all functionality. Legal forms are automatically created for user-initiated resubscribe actions on custom subscriptions.
+
+**Operation ID:** `user-subscription-change`
+
+**Tags:** Preference Management
+
+**API Version:** `2021-04-15`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location Id |
+| `contactId` | string | Yes | Contact Id |
+| `email` | string | Yes | Email address |
+| `subscription_action` | object | Yes |  |
+| `legal_reason` | string | No | Legal reason for the change (required only for resubscribe and resub_all actions) |
+| `legal_description` | string | No | Legal description/details |
+
+**`subscription_action` object properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `default`, `custom`, `resub_all`) | Yes | Type of subscription action |
+| `subtype_name` | string (enum: `One on One`) | No | Subscription type name (required for default types: "One on One") |
+| `subtype_id` | string | No | Custom subscription type ID (required for custom types) |
+| `subtype_status` | string (enum: `subscribed`, `unsubscribed`) | Yes | Subscription status |
+
+#### Responses
+
+**`200` - Successful response**
+
+**`201` - **
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
 ## Email
 
 ### GET `/conversations/messages/email/{id}`
@@ -308,6 +504,51 @@ Post the messageId for the API to delete a scheduled email message.
 
 ## Messages
 
+### GET `/conversations/messages/export`
+
+**Export messages by location ID**
+
+Export messages for a specific location with cursor-based pagination support. Response includes messageType (string), source, and subType fields. The channel parameter is optional - if not provided, all non-email message types will be returned including activity messages (opportunity updates, appointments, etc.).
+
+**Operation ID:** `export-messages-by-location`
+
+**Tags:** Messages
+
+**Required Scopes:** `conversations/message.readonly`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes | Location ID to filter messages by |
+| `limit` | query | number | No | Number of messages to return per page |
+| `cursor` | query | string | No | Cursor for pagination. Pass the nextCursor from previous response to get next page. |
+| `sortBy` | query | string (enum: `createdAt`, `updatedAt`) | No | Field to sort by |
+| `sortOrder` | query | string (enum: `asc`, `desc`) | No | Sort order |
+| `conversationId` | query | string | No | Filter messages by conversation ID |
+| `contactId` | query | string | No | Filter messages by contact ID |
+| `channel` | query | string (enum: `Call`, `SMS`, `Email`, `WhatsApp`, `Instagram`, `Facebook`) | No | Filter by message channel. If not provided, all non-email message types will be returned including activity messages (opportunity updates, appointments, etc.) |
+| `startDate` | query | string | No | Start date to filter messages by |
+| `endDate` | query | string | No | End date to filter messages by |
+
+#### Responses
+
+**`200` - List of messages for the location with pagination details.**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `messages` | array of object | Yes | Array of messages |
+| `nextCursor` | string | No | Cursor for fetching next page. Null if no more results. |
+| `total` | number | Yes | Total number of messages matching the query |
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
 ### GET `/conversations/messages/{id}`
 
 **Get message by message id**
@@ -329,16 +570,15 @@ Get message by message id.
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes |  |
-| `altId` | string | No | Alternative identifier for the message |
 | `type` | number | Yes |  |
-| `messageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | Yes | Type of the message as a string |
+| `messageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_TIKTOK_COMMENT`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`, `TYPE_SMS_REACTION`) | Yes | Type of the message as a string |
 | `locationId` | string | Yes |  |
 | `contactId` | string | Yes |  |
 | `conversationId` | string | Yes |  |
 | `dateAdded` | string | Yes |  |
 | `body` | string | No |  |
 | `direction` | string (enum: `inbound`, `outbound`) | Yes |  |
-| `status` | string (enum: `connected`, `delivered`, `failed`, `opened`, `pending`, `read`, `scheduled`, `sent`, `undelivered`, `clicked`, `opt_out`) | No |  |
+| `status` | string (enum: `connected`, `delivered`, `failed`, `opened`, `pending`, `read`, `scheduled`, `sent`, `undelivered`, `clicked`, `opt_out`, `queued`) | No |  |
 | `contentType` | string | Yes |  |
 | `attachments` | array of string | No | An array of attachment URLs. Attachments will be empty for Call and Voicemails, type 1 and 10. Please use get call recording API to fetch call recording and voicemails. |
 | `meta` | object | No |  |
@@ -374,7 +614,7 @@ Get messages by conversation id.
 | `conversationId` | path | string | Yes | Conversation ID as string |
 | `lastMessageId` | query | string | No | Message ID of the last message in the list as a string |
 | `limit` | query | number | No | Number of messages to be fetched from the conversation. Default limit is 20 |
-| `type` | query | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_FACEBOOK`, `TYPE_GMB`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_INTERNAL_COMMENTS`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | No | Types of message to fetched separated with comma |
+| `type` | query | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_FACEBOOK`, `TYPE_GMB`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_INTERNAL_COMMENTS`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`) | No | Types of message to fetched separated with comma |
 
 #### Responses
 
@@ -382,7 +622,9 @@ Get messages by conversation id.
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `messages` | object | Yes |  |
+| `lastMessageId` | string | Yes | Id of the last message in the messages array |
+| `nextPage` | boolean | Yes | Next page value true indicates only 20 message is in the response. Rest of the messages are in the next page. Please use the lastMessageId value in the query to get the next page messages |
+| `messages` | array of object | Yes | Array of messages |
 
 **`400` - Bad Request**
 
@@ -412,7 +654,8 @@ Post the necessary fields for the API to send a new message.
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `type` | string (enum: `SMS`, `Email`, `WhatsApp`, `IG`, `FB`, `Custom`, `Live_Chat`) | Yes | Type of message being sent |
+| `type` | string (enum: `SMS`, `RCS`, `Email`, `WhatsApp`, `IG`, `FB`, `Custom`, `Live_Chat`, `TIKTOK`) | Yes | Type of message being sent |
+| `subType` | object | Yes | Type of message being sent |
 | `contactId` | string | Yes | ID of the contact receiving the message |
 | `appointmentId` | string | No | ID of the associated appointment |
 | `attachments` | array of string | No | Array of attachment URLs |
@@ -428,9 +671,28 @@ Post the necessary fields for the API to send a new message.
 | `scheduledTimestamp` | number | No | UTC Timestamp (in seconds) at which the message should be scheduled |
 | `conversationProviderId` | string | No | ID of conversation provider |
 | `emailTo` | string | No | Email address to send to, if different from contact's primary email. This should be a valid email address associated with the contact. |
+| `customSubtypeId` | string | No | Custom subtype ID for email unsubscription preferences. Only applies to email messages. |
 | `emailReplyMode` | string (enum: `reply`, `reply_all`) | No | Mode for email replies |
 | `fromNumber` | string | No | Phone number used as the sender number for outbound messages |
 | `toNumber` | string | No | Recipient phone number for outbound messages |
+| `forward` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
+| `usesNativeSchedulingAi` | boolean | No | Whether the scheduled email uses native AI for the email scheduling  |
+| `optimizationPeriod` | string (enum: `24h`, `48h`, `72h`) | No | Optimization period in hours (24h, 48h, or 72h) |
+
+**`forward` object properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `isForwarded` | boolean | Yes | Specify if this is a forwarded email |
+| `forwardWholeThread` | boolean | No | Specify if forwarding the whole thread or just a single email |
+| `messageId` | string | No | Message ID of the email thread being forwarded (source) - REQUIRED for forwarding |
+| `emailMessageId` | string | No | Email Message ID of the specific email being forwarded (source) - Required for single email forward, ignored for thread forward |
+| `sourceContactId` | string | No | Contact ID where the forwarded email originated from (source) - Auto-populated if not provided |
+| `sourceConversationId` | string | No | Conversation ID where the forwarded email originated from (source) - Auto-populated if not provided |
+| `toEmail` | string | No | Email address to forward to (destination) |
+| `recipientContactId` | string | No | Contact ID of recipient when forwarding (destination) |
+| `recipientConversationId` | string | No | Conversation ID of recipient when forwarding (destination) |
 
 #### Responses
 
@@ -443,6 +705,8 @@ Post the necessary fields for the API to send a new message.
 | `messageId` | string | Yes | This is the main Message ID |
 | `messageIds` | array of string | No | When sending via the GMB channel, we will be returning list of `messageIds` instead of single `messageId`. |
 | `msg` | string | No | Additional response message when sending a workflow message |
+| `forwardData` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
 
 **`400` - Bad Request**
 
@@ -472,10 +736,11 @@ Post the necessary fields for the API to add a new inbound message.
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `type` | string (enum: `SMS`, `Email`, `WhatsApp`, `GMB`, `IG`, `FB`, `Custom`, `WebChat`, `Live_Chat`, `Call`) | Yes | Message Type |
+| `type` | string (enum: `SMS`, `RCS`, `Email`, `WhatsApp`, `GMB`, `IG`, `FB`, `Custom`, `WebChat`, `Live_Chat`, `Call`, `IVR_Call`, `Campaign_Call`, `Campaign_VoiceMail`, `TIKTOK`, `ALL_IN_ONE_CHAT`, `FORM_SUBMISSION`) | Yes | Message Type |
 | `attachments` | array of string | No | Array of attachments |
 | `message` | string | No | Message Body |
 | `conversationId` | string | Yes | Conversation Id |
+| `contactId` | string | Yes | Contact Id |
 | `conversationProviderId` | string | Yes | Conversation Provider Id |
 | `html` | string | No | HTML Body of Email |
 | `subject` | string | No | Subject of the Email |
@@ -575,6 +840,52 @@ Post the necessary fields for the API to add a new outbound call.
 
 ---
 
+### POST `/conversations/messages/review-reply`
+
+**Send a review reply to Google My Business**
+
+Post a reply to a customer review on Google My Business
+
+**Operation ID:** `send-review-reply`
+
+**Tags:** Messages
+
+**Required Scopes:** `conversations/message.write`
+
+**API Version:** `2021-04-15`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `conversationId` | string | Yes | Conversation ID (must have reviewId) |
+| `locationId` | string | Yes | Location ID |
+| `message` | string | Yes | Review reply message text |
+
+#### Responses
+
+**`200` - Review reply sent successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `conversationId` | string | Yes | Conversation ID. |
+| `emailMessageId` | string | No | This contains the email message id (only for Email type). Use this ID to send inbound replies to GHL to create a threaded email. |
+| `messageId` | string | Yes | This is the main Message ID |
+| `messageIds` | array of string | No | When sending via the GMB channel, we will be returning list of `messageIds` instead of single `messageId`. |
+| `msg` | string | No | Additional response message when sending a workflow message |
+| `forwardData` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+---
+
 ### DELETE `/conversations/messages/{messageId}/schedule`
 
 **Cancel a scheduled message.**
@@ -634,8 +945,11 @@ Post the necessary fields for the API to upload files. The files need to be a bu
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `conversationId` | string | Yes | Conversation Id |
+| `contactId` | string | Yes | Contact Id |
 | `locationId` | string | Yes |  |
 | `attachmentUrls` | array of string | Yes |  |
+| `chatServiceSid` | string | No | Twilio chat service SID for group SMS uploads |
+| `isGroupSms` | string | No | Flag to indicate group SMS upload flow. When true, only 1 file upload is allowed per request. |
 
 #### Responses
 
@@ -644,6 +958,7 @@ Post the necessary fields for the API to upload files. The files need to be a bu
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `uploadedFiles` | object | Yes |  |
+| `twilioMediaSids` | array of string | No | Twilio media SIDs for group SMS (when isGroupSms=true) |
 
 **`400` - Bad Request**
 
@@ -662,6 +977,100 @@ Post the necessary fields for the API to upload files. The files need to be a bu
 |----------|------|----------|-------------|
 | `status` | number (enum: `400`, `413`, `415`) | Yes | HTTP Status code of the request |
 | `message` | string | Yes | Error message of the request |
+
+---
+
+### POST `/conversations/messages/upload/initiate`
+
+**Initiate file upload to GCS**
+
+Generates a signed URL for direct file upload to Google Cloud Storage. Returns a signed URL valid for 15 minutes. Upload file via PUT request, then call /complete to finalize.
+
+**Operation ID:** `initiate-file-upload`
+
+**Tags:** Messages
+
+**Required Scopes:** `conversations/message.write`
+
+**API Version:** `2021-04-15`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location ID |
+| `conversationId` | string | Yes | Conversation ID |
+| `filename` | string | Yes | Original filename with extension |
+| `contentType` | string | Yes | MIME type of the file |
+| `fileSize` | number | No | File size in bytes (optional, for pre-validation) |
+| `channel` | string | Yes | Channel type for size limits (WHATSAPP for 100MB limit, others for 5MB) |
+
+#### Responses
+
+**`200` - Signed URL generated successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadUrl` | string | Yes | Signed URL for direct upload to GCS. Use PUT request with file content. |
+| `uploadId` | string | Yes | Unique upload ID for tracking and completing the upload |
+| `filePath` | string | Yes | File path in GCS bucket (needed for confirmation endpoint) |
+| `expiresAt` | number | Yes | URL expiration timestamp (Unix milliseconds) |
+| `maxFileSize` | number | Yes | Maximum allowed file size in bytes |
+
+**`400` - Bad Request - Invalid parameters**
+
+**`401` - Unauthorized**
+
+**`413` - File size exceeds maximum allowed limit**
+
+---
+
+### POST `/conversations/messages/upload/complete`
+
+**Complete file upload**
+
+Validates the uploaded file in GCS and returns the public URL. Call this endpoint after successfully uploading the file to the signed URL.
+
+**Operation ID:** `complete-file-upload`
+
+**Tags:** Messages
+
+**Required Scopes:** `conversations/message.write`
+
+**API Version:** `2021-04-15`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadId` | string | Yes | Upload ID from request response |
+| `filePath` | string | Yes | File path from request response |
+| `locationId` | string | Yes | Location ID |
+| `conversationId` | string | Yes | Conversation ID |
+| `filename` | string | Yes | Original filename (for response mapping) |
+
+#### Responses
+
+**`200` - Upload completed successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadedFiles` | object | Yes | Map of filename to public URL |
+| `metadata` | object | Yes | File metadata |
+
+**`400` - Bad Request - Invalid parameters**
+
+**`401` - Unauthorized**
+
+**`404` - File not found in storage - upload may have failed or URL expired**
 
 ---
 
@@ -717,18 +1126,56 @@ Post the necessary fields for the API to update message status.
 | `messageId` | string | Yes | This is the main Message ID |
 | `messageIds` | array of string | No | When sending via the GMB channel, we will be returning list of `messageIds` instead of single `messageId`. |
 | `msg` | string | No | Additional response message when sending a workflow message |
+| `forwardData` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
 
 **`400` - Bad Request**
 
 **`401` - Unauthorized**
 
-**`403` - Forbidden**
+---
+
+### PUT `/conversations/messages/{messageId}/attachments`
+
+**Add message attachments**
+
+Set attachments on an existing message (replaces existing). Maximum 5 URLs. Supported for TYPE_CUSTOM_CALL (34) and TYPE_CALL (1) with subType EXTERNAL_CALL.
+
+**Operation ID:** `add-message-attachments`
+
+**Tags:** Messages
+
+**Required Scopes:** `conversations/message.write`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `messageId` | path | string | Yes | Message Id |
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `statusCode` | number | No |  |
-| `message` | string | No |  |
-| `error` | string | No |  |
+| `attachments` | array of string | Yes | Array of attachment URLs to set on the message (replaces existing). Maximum 5 URLs. |
+
+#### Responses
+
+**`200` - Successfully set message attachments**
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+**`403` - Message type does not support attachment updates**
+
+**`404` - Message not found**
 
 ---
 
@@ -741,6 +1188,8 @@ Get the recording for a message by passing the message id
 **Operation ID:** `get-message-recording`
 
 **Tags:** Messages
+
+**Required Scopes:** `conversations/message.readonly`, `conversations/message.readonly`
 
 **API Version:** `2021-04-15`
 
@@ -770,6 +1219,8 @@ Get the recording transcription for a message by passing the message id
 **Operation ID:** `get-message-transcription`
 
 **Tags:** Messages
+
+**Required Scopes:** `conversations/message.readonly`, `conversations/message.readonly`
 
 **API Version:** `2021-04-15`
 
@@ -808,6 +1259,8 @@ Download the recording transcription for a message by passing the message id
 **Operation ID:** `download-message-transcription`
 
 **Tags:** Messages
+
+**Required Scopes:** `conversations/message.readonly`, `conversations/message.readonly`
 
 **API Version:** `2021-04-15`
 
@@ -875,14 +1328,13 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 
 ## Schemas
 
-### BadRequestDTO
+### AddMessageAttachmentsDto
 
 **Type:** `object`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `statusCode` | number | No |  |
-| `message` | string | No |  |
+| `attachments` | array of string | Yes | Array of attachment URLs to set on the message (replaces existing). Maximum 5 URLs. |
 
 ### CallDataDTO
 
@@ -902,6 +1354,27 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 |----------|------|----------|-------------|
 | `status` | number | Yes | HTTP Status code of the request |
 | `message` | string | Yes | Error message of the request |
+
+### CompleteFileUploadDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadId` | string | Yes | Upload ID from request response |
+| `filePath` | string | Yes | File path from request response |
+| `locationId` | string | Yes | Location ID |
+| `conversationId` | string | Yes | Conversation ID |
+| `filename` | string | Yes | Original filename (for response mapping) |
+
+### CompleteFileUploadResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadedFiles` | object | Yes | Map of filename to public URL |
+| `metadata` | object | Yes | File metadata |
 
 ### ConversationCreateResponseDto
 
@@ -931,7 +1404,7 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `userId` | string | No | User ID as string |
 | `lastMessageBody` | string | No | Last message body as string |
 | `lastMessageDate` | string | No | Last message date as UTC |
-| `lastMessageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | No | Type of the last message sent/received in the conversation. |
+| `lastMessageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_TIKTOK_COMMENT`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`, `TYPE_SMS_REACTION`) | No | Type of the last message sent/received in the conversation. |
 | `unreadCount` | number | No | Count of unread messages in the conversation |
 | `inbox` | boolean | No | Inbox status of the conversation. |
 | `starred` | boolean | No | Starred status of the conversation. |
@@ -947,7 +1420,7 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `contactId` | string | Yes | Contact Id |
 | `locationId` | string | Yes | Location Id |
 | `lastMessageBody` | string | Yes | Content of the most recent message in the conversation |
-| `lastMessageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | Yes | Channel/type of the most recent message (SMS, Email, Call, etc) |
+| `lastMessageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_TIKTOK_COMMENT`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`, `TYPE_SMS_REACTION`) | Yes | Channel/type of the most recent message (SMS, Email, Call, etc) |
 | `type` | string (enum: `TYPE_PHONE`, `TYPE_EMAIL`, `TYPE_FB_MESSENGER`, `TYPE_REVIEW`, `TYPE_GROUP_SMS`) | Yes | Primary channel/type of the conversation (Phone, Email, etc) |
 | `unreadCount` | number | Yes | Number of unread messages in this conversation |
 | `fullName` | string | Yes | Complete name of the contact (first and last name) |
@@ -972,6 +1445,17 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 |----------|------|----------|-------------|
 | `success` | boolean | Yes | Indicates whether the API request was successful. |
 | `conversation` | object | Yes |  |
+
+### CreateCustomSubtypeDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name of the custom subtype (max 100 characters) |
+| `description` | string | No | Description of the custom subtype (max 100 characters) |
+| `channel` | string (enum: `email`, `sms`) | Yes | Communication channel |
+| `language` | string | Yes | Language code |
 
 ### CreateLiveChatMessageFeedbackResponse
 
@@ -999,15 +1483,46 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `type` | string | Yes | Error Type |
 | `message` | string | Yes | Error Message |
 
-### ForbiddenDTO
+### ExportMessagesResponseDto
 
 **Type:** `object`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `statusCode` | number | No |  |
-| `message` | string | No |  |
-| `error` | string | No |  |
+| `messages` | array of object | Yes | Array of messages |
+| `nextCursor` | string | No | Cursor for fetching next page. Null if no more results. |
+| `total` | number | Yes | Total number of messages matching the query |
+
+### ForwardConfigDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `isForwarded` | boolean | Yes | Specify if this is a forwarded email |
+| `forwardWholeThread` | boolean | No | Specify if forwarding the whole thread or just a single email |
+| `messageId` | string | No | Message ID of the email thread being forwarded (source) - REQUIRED for forwarding |
+| `emailMessageId` | string | No | Email Message ID of the specific email being forwarded (source) - Required for single email forward, ignored for thread forward |
+| `sourceContactId` | string | No | Contact ID where the forwarded email originated from (source) - Auto-populated if not provided |
+| `sourceConversationId` | string | No | Conversation ID where the forwarded email originated from (source) - Auto-populated if not provided |
+| `toEmail` | string | No | Email address to forward to (destination) |
+| `recipientContactId` | string | No | Contact ID of recipient when forwarding (destination) |
+| `recipientConversationId` | string | No | Conversation ID of recipient when forwarding (destination) |
+
+### ForwardResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `forwardWholeThread` | boolean | No | Whether the entire thread was forwarded |
+| `messageId` | string | No | Message ID of the forwarded message (source) |
+| `emailMessageId` | string | No | Email Message ID of the forwarded email (source) |
+| `sourceContactId` | string | No | Contact ID where the forwarded email originated from (source) |
+| `sourceConversationId` | string | No | Conversation ID where the forwarded email originated from (source) |
+| `forwardToEmail` | string | No | Email address the message was forwarded to (destination) |
+| `recipientContactId` | string | No | Contact ID of the recipient of the forwarded email (destination) |
+| `recipientConversationId` | string | No | Conversation ID of the recipient of the forwarded email (destination) |
 
 ### GetConversationByIdResponse
 
@@ -1069,16 +1584,15 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes |  |
-| `altId` | string | No | Alternative identifier for the message |
 | `type` | number | Yes |  |
-| `messageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`) | Yes | Type of the message as a string |
+| `messageType` | string (enum: `TYPE_CALL`, `TYPE_SMS`, `TYPE_RCS`, `TYPE_EMAIL`, `TYPE_SMS_REVIEW_REQUEST`, `TYPE_WEBCHAT`, `TYPE_SMS_NO_SHOW_REQUEST`, `TYPE_CAMPAIGN_SMS`, `TYPE_CAMPAIGN_CALL`, `TYPE_CAMPAIGN_EMAIL`, `TYPE_CAMPAIGN_VOICEMAIL`, `TYPE_FACEBOOK`, `TYPE_CAMPAIGN_FACEBOOK`, `TYPE_CAMPAIGN_MANUAL_CALL`, `TYPE_CAMPAIGN_MANUAL_SMS`, `TYPE_GMB`, `TYPE_CAMPAIGN_GMB`, `TYPE_REVIEW`, `TYPE_INSTAGRAM`, `TYPE_WHATSAPP`, `TYPE_CUSTOM_SMS`, `TYPE_CUSTOM_EMAIL`, `TYPE_CUSTOM_PROVIDER_SMS`, `TYPE_CUSTOM_PROVIDER_EMAIL`, `TYPE_IVR_CALL`, `TYPE_ACTIVITY_CONTACT`, `TYPE_ACTIVITY_INVOICE`, `TYPE_ACTIVITY_PAYMENT`, `TYPE_ACTIVITY_OPPORTUNITY`, `TYPE_LIVE_CHAT`, `TYPE_LIVE_CHAT_INFO_MESSAGE`, `TYPE_ACTIVITY_APPOINTMENT`, `TYPE_FACEBOOK_COMMENT`, `TYPE_INSTAGRAM_COMMENT`, `TYPE_CUSTOM_CALL`, `TYPE_INTERNAL_COMMENT`, `TYPE_ACTIVITY_EMPLOYEE_ACTION_LOG`, `TYPE_TIKTOK`, `TYPE_TIKTOK_COMMENT`, `TYPE_ACTIVITY_WHATSAPP`, `TYPE_FORM_SUBMISSION`, `TYPE_SMS_REACTION`) | Yes | Type of the message as a string |
 | `locationId` | string | Yes |  |
 | `contactId` | string | Yes |  |
 | `conversationId` | string | Yes |  |
 | `dateAdded` | string | Yes |  |
 | `body` | string | No |  |
 | `direction` | string (enum: `inbound`, `outbound`) | Yes |  |
-| `status` | string (enum: `connected`, `delivered`, `failed`, `opened`, `pending`, `read`, `scheduled`, `sent`, `undelivered`, `clicked`, `opt_out`) | No |  |
+| `status` | string (enum: `connected`, `delivered`, `failed`, `opened`, `pending`, `read`, `scheduled`, `sent`, `undelivered`, `clicked`, `opt_out`, `queued`) | No |  |
 | `contentType` | string | Yes |  |
 | `attachments` | array of string | No | An array of attachment URLs. Attachments will be empty for Call and Voicemails, type 1 and 10. Please use get call recording API to fetch call recording and voicemails. |
 | `meta` | object | No |  |
@@ -1106,7 +1620,34 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `messages` | object | Yes |  |
+| `lastMessageId` | string | Yes | Id of the last message in the messages array |
+| `nextPage` | boolean | Yes | Next page value true indicates only 20 message is in the response. Rest of the messages are in the next page. Please use the lastMessageId value in the query to get the next page messages |
+| `messages` | array of object | Yes | Array of messages |
+
+### InitiateFileUploadDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location ID |
+| `conversationId` | string | Yes | Conversation ID |
+| `filename` | string | Yes | Original filename with extension |
+| `contentType` | string | Yes | MIME type of the file |
+| `fileSize` | number | No | File size in bytes (optional, for pre-validation) |
+| `channel` | string | Yes | Channel type for size limits (WHATSAPP for 100MB limit, others for 5MB) |
+
+### InitiateFileUploadResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uploadUrl` | string | Yes | Signed URL for direct upload to GCS. Use PUT request with file content. |
+| `uploadId` | string | Yes | Unique upload ID for tracking and completing the upload |
+| `filePath` | string | Yes | File path in GCS bucket (needed for confirmation endpoint) |
+| `expiresAt` | number | Yes | URL expiration timestamp (Unix milliseconds) |
+| `maxFileSize` | number | Yes | Maximum allowed file size in bytes |
 
 ### MessageMeta
 
@@ -1124,10 +1665,11 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `type` | string (enum: `SMS`, `Email`, `WhatsApp`, `GMB`, `IG`, `FB`, `Custom`, `WebChat`, `Live_Chat`, `Call`) | Yes | Message Type |
+| `type` | string (enum: `SMS`, `RCS`, `Email`, `WhatsApp`, `GMB`, `IG`, `FB`, `Custom`, `WebChat`, `Live_Chat`, `Call`, `IVR_Call`, `Campaign_Call`, `Campaign_VoiceMail`, `TIKTOK`, `ALL_IN_ONE_CHAT`, `FORM_SUBMISSION`) | Yes | Message Type |
 | `attachments` | array of string | No | Array of attachments |
 | `message` | string | No | Message Body |
 | `conversationId` | string | Yes | Conversation Id |
+| `contactId` | string | Yes | Contact Id |
 | `conversationProviderId` | string | Yes | Conversation Provider Id |
 | `html` | string | No | HTML Body of Email |
 | `subject` | string | No | Subject of the Email |
@@ -1184,7 +1726,8 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `type` | string (enum: `SMS`, `Email`, `WhatsApp`, `IG`, `FB`, `Custom`, `Live_Chat`) | Yes | Type of message being sent |
+| `type` | string (enum: `SMS`, `RCS`, `Email`, `WhatsApp`, `IG`, `FB`, `Custom`, `Live_Chat`, `TIKTOK`) | Yes | Type of message being sent |
+| `subType` | object | Yes | Type of message being sent |
 | `contactId` | string | Yes | ID of the contact receiving the message |
 | `appointmentId` | string | No | ID of the associated appointment |
 | `attachments` | array of string | No | Array of attachment URLs |
@@ -1200,9 +1743,14 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `scheduledTimestamp` | number | No | UTC Timestamp (in seconds) at which the message should be scheduled |
 | `conversationProviderId` | string | No | ID of conversation provider |
 | `emailTo` | string | No | Email address to send to, if different from contact's primary email. This should be a valid email address associated with the contact. |
+| `customSubtypeId` | string | No | Custom subtype ID for email unsubscription preferences. Only applies to email messages. |
 | `emailReplyMode` | string (enum: `reply`, `reply_all`) | No | Mode for email replies |
 | `fromNumber` | string | No | Phone number used as the sender number for outbound messages |
 | `toNumber` | string | No | Recipient phone number for outbound messages |
+| `forward` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
+| `usesNativeSchedulingAi` | boolean | No | Whether the scheduled email uses native AI for the email scheduling  |
+| `optimizationPeriod` | string (enum: `24h`, `48h`, `72h`) | No | Optimization period in hours (24h, 48h, or 72h) |
 
 ### SendMessageResponseDto
 
@@ -1215,6 +1763,18 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `messageId` | string | Yes | This is the main Message ID |
 | `messageIds` | array of string | No | When sending via the GMB channel, we will be returning list of `messageIds` instead of single `messageId`. |
 | `msg` | string | No | Additional response message when sending a workflow message |
+| `forwardData` | object | No |  |
+| `status` | string (enum: `delivered`, `failed`, `pending`, `read`) | Yes | Message status |
+
+### SendReviewReplyDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `conversationId` | string | Yes | Conversation ID (must have reviewId) |
+| `locationId` | string | Yes | Location ID |
+| `message` | string | Yes | Review reply message text |
 
 ### StartAfterArrayNumberSchema
 
@@ -1232,15 +1792,16 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 |----------|------|----------|-------------|
 | `startAfterDate` | number | No | Search to begin after the specified date - should contain the sort value of the last document |
 
-### UnauthorizedDTO
+### SubscriptionActionDto
 
 **Type:** `object`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `statusCode` | number | No |  |
-| `message` | string | No |  |
-| `error` | string | No |  |
+| `type` | string (enum: `default`, `custom`, `resub_all`) | Yes | Type of subscription action |
+| `subtype_name` | string (enum: `One on One`) | No | Subscription type name (required for default types: "One on One") |
+| `subtype_id` | string | No | Custom subscription type ID (required for custom types) |
+| `subtype_status` | string (enum: `subscribed`, `unsubscribed`) | Yes | Subscription status |
 
 ### UpdateConversationDto
 
@@ -1252,6 +1813,17 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | `unreadCount` | number | No | Count of unread messages in the conversation |
 | `starred` | boolean | No | Starred status of the conversation. |
 | `feedback` | object | No |  |
+
+### UpdateCustomSubtypeDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | No | Name of the custom subtype (max 100 characters) |
+| `description` | string | No | Description of the custom subtype (max 100 characters) |
+| `archived` | boolean | No | Whether the custom subtype is archived |
+| `resubscription_legal_form_id` | string | No | Resubscription legal form ID (optional when archiving) |
 
 ### UpdateMessageStatusDto
 
@@ -1271,8 +1843,11 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `conversationId` | string | Yes | Conversation Id |
+| `contactId` | string | Yes | Contact Id |
 | `locationId` | string | Yes |  |
 | `attachmentUrls` | array of string | Yes |  |
+| `chatServiceSid` | string | No | Twilio chat service SID for group SMS uploads |
+| `isGroupSms` | string | No | Flag to indicate group SMS upload flow. When true, only 1 file upload is allowed per request. |
 
 ### UploadFilesErrorResponseDto
 
@@ -1290,6 +1865,20 @@ Agent/AI-Bot will call this when they are typing a message in live chat message
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `uploadedFiles` | object | Yes |  |
+| `twilioMediaSids` | array of string | No | Twilio media SIDs for group SMS (when isGroupSms=true) |
+
+### UserSubscriptionChangeDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location Id |
+| `contactId` | string | Yes | Contact Id |
+| `email` | string | Yes | Email address |
+| `subscription_action` | object | Yes |  |
+| `legal_reason` | string | No | Legal reason for the change (required only for resubscribe and resub_all actions) |
+| `legal_description` | string | No | Legal description/details |
 
 ### UserTypingBody
 

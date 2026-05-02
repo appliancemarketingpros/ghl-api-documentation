@@ -161,6 +161,8 @@ Get Businesses by Location
 | Parameter | In | Type | Required | Description |
 |-----------|-----|------|----------|-------------|
 | `locationId` | query | string | Yes |  |
+| `limit` | query | string | No |  |
+| `skip` | query | string | No |  |
 
 #### Responses
 

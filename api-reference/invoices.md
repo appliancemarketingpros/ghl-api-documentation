@@ -1094,6 +1094,7 @@ API to schedule an schedule invoice to start sending to the customer
 | `bacsDirectDebit` | object | No |  |
 | `becsDirectDebit` | object | No |  |
 | `cardId` | string | No |  |
+| `provider` | object | No |  |
 
 #### Responses
 
@@ -1176,6 +1177,7 @@ API to manage auto payment for a schedule
 | `bacsDirectDebit` | object | No |  |
 | `becsDirectDebit` | object | No |  |
 | `cardId` | string | No |  |
+| `provider` | object | No |  |
 
 #### Responses
 
@@ -1482,6 +1484,62 @@ Get the next invoice number for the given location
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `invoiceNumber` | number | No | Invoice Number |
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+**`422` - Unprocessable Entity**
+
+---
+
+### GET `/invoices/settings`
+
+**Get Invoice Settings**
+
+Get the invoice settings for the given location
+
+**Operation ID:** `get-invoice-settings`
+
+**Tags:** Invoice
+
+**Required Scopes:** `invoices.readonly`, `invoices.readonly`
+
+**API Version:** `2021-07-28`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `altId` | query | string | Yes | Location Id or Agency Id |
+| `altType` | query | string (enum: `location`) | Yes |  |
+
+#### Responses
+
+**`200` - Successful response**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `altId` | string | No | Sub-Account Id |
+| `altType` | string (enum: `location`) | No | Alt Type |
+| `termsNote` | string | No | Terms and conditions for invoices |
+| `estimatesTermsNote` | string | No | Terms and conditions for estimates |
+| `title` | string | No | Title for invoices |
+| `estimatesTitle` | string | No | Title for estimates |
+| `invoiceNumberPrefix` | string | No | Prefix for invoice numbers |
+| `estimateNumberPrefix` | string | No | Prefix for estimate numbers |
+| `dueAfterXDays` | number | No | Number of days after which invoice is due |
+| `estimatesExpireAfterXDays` | number | No | Number of days after which estimate expires |
+| `minimumPercentagePartialPayment` | number | No | Minimum percentage for partial payment |
+| `customFields` | array of string | No | Custom fields array |
+| `customNotification` | object | No |  |
+| `businessDetails` | object | No |  |
+| `senderConfiguration` | object | No |  |
+| `productSettings` | object | No |  |
+| `reminderSettings` | object | No |  |
+| `lateFeesConfiguration` | object | No |  |
+| `tipsConfiguration` | object | No |  |
+| `paymentMethods` | object | No |  |
 
 **`400` - Bad Request**
 
@@ -1997,8 +2055,8 @@ API to send invoice by invoice id
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `fromName` | string | No | Sender name to be used while sending invoice |
-| `fromEmail` | string | No | Email id to be used while sending out invoices |
+| `fromName` | string | No | Sender name to be used while sending email notification |
+| `fromEmail` | string | No | Email id to be used while sending email notification |
 
 **`autoPayment` object properties:**
 
@@ -2014,6 +2072,7 @@ API to send invoice by invoice id
 | `bacsDirectDebit` | object | No |  |
 | `becsDirectDebit` | object | No |  |
 | `cardId` | string | No |  |
+| `provider` | object | No |  |
 
 #### Responses
 
@@ -2450,6 +2509,7 @@ Create a new estimate with the provided details
 | `isSetupFeeItem` | boolean | No | Setupfee item, only created when 1st invoice of recurring schedule is generated |
 | `type` | string (enum: `one_time`, `recurring`) | No | Price type of the item |
 | `taxInclusive` | boolean | No | true if item amount is tax inclusive Default: `False` |
+| `attachments` | array of string | No | Attachments for the line item |
 
 **`discount` object properties:**
 
@@ -2664,6 +2724,7 @@ Update an existing estimate with new details
 | `isSetupFeeItem` | boolean | No | Setupfee item, only created when 1st invoice of recurring schedule is generated |
 | `type` | string (enum: `one_time`, `recurring`) | No | Price type of the item |
 | `taxInclusive` | boolean | No | true if item amount is tax inclusive Default: `False` |
+| `attachments` | array of string | No | Attachments for the line item |
 
 **`discount` object properties:**
 
@@ -2954,8 +3015,8 @@ API to send estimate by estimate id
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `fromName` | string | No | Sender name to be used while sending invoice |
-| `fromEmail` | string | No | Email id to be used while sending out invoices |
+| `fromName` | string | No | Sender name to be used while sending email notification |
+| `fromEmail` | string | No | Email id to be used while sending email notification |
 
 #### Responses
 
@@ -3561,6 +3622,19 @@ Get a preview of an estimate template
 |----------|------|----------|-------------|
 | `email` | string | Yes |  |
 
+### Address
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `addressLine1` | string | No |  |
+| `addressLine2` | string | No |  |
+| `city` | string | No |  |
+| `state` | string | No |  |
+| `countryCode` | string (enum: `AF`, `AX`, `AL`, `DZ`, `AS`, `AD`, `AO`, `AI`, `AQ`, `AG`, `AR`, `AM`, `AW`, `AU`, `AT`, `AZ`, `BS`, `BH`, `BD`, `BB`, `BY`, `BE`, `BZ`, `BJ`, `BM`, `BT`, `BO`, `BA`, `BW`, `BV`, `BR`, `IO`, `BN`, `BG`, `BF`, `BI`, `KH`, `CM`, `CA`, `CV`, `KY`, `CF`, `TD`, `CL`, `CN`, `CX`, `CC`, `CO`, `KM`, `CG`, `CD`, `CK`, `CR`, `CI`, `HR`, `CU`, `CY`, `CZ`, `DK`, `DJ`, `DM`, `DO`, `EC`, `EG`, `SV`, `GQ`, `ER`, `EE`, `ET`, `FK`, `FO`, `FJ`, `FI`, `FR`, `GF`, `PF`, `TF`, `GA`, `GM`, `GE`, `DE`, `GH`, `GI`, `GR`, `GL`, `GD`, `GP`, `GU`, `GT`, `GG`, `GN`, `GW`, `GY`, `HT`, `HM`, `VA`, `HN`, `HK`, `HU`, `IS`, `IN`, `ID`, `IR`, `IQ`, `IE`, `IM`, `IL`, `IT`, `JM`, `JP`, `JE`, `JO`, `KZ`, `KE`, `KI`, `KP`, `KR`, `XK`, `KW`, `KG`, `LA`, `LV`, `LB`, `LS`, `LR`, `LY`, `LI`, `LT`, `LU`, `MO`, `MK`, `MG`, `MW`, `MY`, `MV`, `ML`, `MT`, `MH`, `MQ`, `MR`, `MU`, `YT`, `MX`, `FM`, `MD`, `MC`, `MN`, `ME`, `MS`, `MA`, `MZ`, `MM`, `NA`, `NR`, `NP`, `NL`, `AN`, `NC`, `NZ`, `NI`, `NE`, `NG`, `NU`, `NF`, `MP`, `NO`, `OM`, `PK`, `PW`, `PS`, `PA`, `PG`, `PY`, `PE`, `PH`, `PN`, `PL`, `PT`, `PR`, `QA`, `RE`, `RO`, `RU`, `RW`, `SH`, `KN`, `LC`, `MF`, `PM`, `VC`, `WS`, `SM`, `ST`, `SA`, `SN`, `RS`, `SC`, `SL`, `SG`, `SX`, `SK`, `SI`, `SB`, `SO`, `ZA`, `GS`, `ES`, `LK`, `SD`, `SR`, `SJ`, `SZ`, `SE`, `CH`, `SY`, `TW`, `TJ`, `TZ`, `TH`, `TL`, `TG`, `TK`, `TO`, `TT`, `TN`, `TR`, `TM`, `TC`, `TV`, `UG`, `GB`, `UA`, `AE`, `US`, `UM`, `UY`, `UZ`, `VU`, `VE`, `VN`, `VG`, `VI`, `WF`, `EH`, `YE`, `ZM`, `ZW`) | No |  |
+| `postalCode` | string | No |  |
+
 ### AddressDto
 
 **Type:** `object`
@@ -3627,6 +3701,7 @@ Get a preview of an estimate template
 | `bacsDirectDebit` | object | No |  |
 | `becsDirectDebit` | object | No |  |
 | `cardId` | string | No |  |
+| `provider` | object | No |  |
 
 ### AutoPaymentInvoiceScheduleResponseDto
 
@@ -3984,6 +4059,43 @@ Get a preview of an estimate template
 | `createdAt` | string | Yes | created at |
 | `updatedAt` | string | Yes | updated at |
 
+### CustomNotificationDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `customerSendInvoice` | object | Yes |  |
+| `teamPaymentSuccess` | object | Yes |  |
+| `customerPaymentSuccess` | object | Yes |  |
+| `teamAutoPaymentSuccess` | object | Yes |  |
+| `customerAutoPaymentSuccess` | object | Yes |  |
+| `teamPaymentFailure` | object | Yes |  |
+| `customerPaymentFailure` | object | Yes |  |
+| `teamAutoPaymentFailure` | object | Yes |  |
+| `customerAutoPaymentFailure` | object | Yes |  |
+| `customerAutoPaymentInfo` | object | Yes |  |
+| `customerAutoPaymentAmountChanged` | object | Yes |  |
+| `teamAutoPaymentSkip` | object | Yes |  |
+| `teamRecurringSendInvoiceFailed` | object | Yes |  |
+| `customerSendEstimate` | object | Yes |  |
+| `teamEstimateAccepted` | object | Yes |  |
+| `teamEstimateDeclined` | object | Yes |  |
+
+### CustomNotificationItemDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `enabled` | boolean | Yes | Flag indicating if the notification is enabled or not |
+| `emailTemplate` | string | Yes | Template to be used for sending email |
+| `smsTemplate` | string | Yes | Template to be used for sending sms |
+| `fromName` | string | No | Name to be used while sending email |
+| `fromEmail` | string | No | Email address to be used for sending email |
+| `emailSubject` | string | No | Subject of email which is sent out |
+| `defaultEmailTemplateId` | string | No | Default email TemplateId to be used for sending via email |
+
 ### CustomRRuleOptionsDto
 
 **Type:** `object`
@@ -4098,6 +4210,26 @@ Get a preview of an estimate template
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `estimateId` | string | Yes | Estimate Id |
+
+### EstimateLineItemDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Invoice Item Name |
+| `description` | string | No | Invoice descriptions |
+| `productId` | string | No | Product Id |
+| `priceId` | string | No | Price Id |
+| `currency` | string | Yes | Currency |
+| `amount` | number | Yes | Product amount |
+| `qty` | number | Yes | Product Quantity |
+| `taxes` | array of object | No | Tax |
+| `automaticTaxCategoryId` | string | No | Tax category id for calculating automatic tax |
+| `isSetupFeeItem` | boolean | No | Setupfee item, only created when 1st invoice of recurring schedule is generated |
+| `type` | string (enum: `one_time`, `recurring`) | No | Price type of the item |
+| `taxInclusive` | boolean | No | true if item amount is tax inclusive Default: `False` |
+| `attachments` | array of string | No | Attachments for the line item |
 
 ### EstimateResponseDto
 
@@ -4248,6 +4380,33 @@ Get a preview of an estimate template
 | `totalSummary` | object | Yes |  |
 | `remindersConfiguration` | object | No |  |
 
+### GetInvoiceSettingsResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `altId` | string | No | Sub-Account Id |
+| `altType` | string (enum: `location`) | No | Alt Type |
+| `termsNote` | string | No | Terms and conditions for invoices |
+| `estimatesTermsNote` | string | No | Terms and conditions for estimates |
+| `title` | string | No | Title for invoices |
+| `estimatesTitle` | string | No | Title for estimates |
+| `invoiceNumberPrefix` | string | No | Prefix for invoice numbers |
+| `estimateNumberPrefix` | string | No | Prefix for estimate numbers |
+| `dueAfterXDays` | number | No | Number of days after which invoice is due |
+| `estimatesExpireAfterXDays` | number | No | Number of days after which estimate expires |
+| `minimumPercentagePartialPayment` | number | No | Minimum percentage for partial payment |
+| `customFields` | array of string | No | Custom fields array |
+| `customNotification` | object | No |  |
+| `businessDetails` | object | No |  |
+| `senderConfiguration` | object | No |  |
+| `productSettings` | object | No |  |
+| `reminderSettings` | object | No |  |
+| `lateFeesConfiguration` | object | No |  |
+| `tipsConfiguration` | object | No |  |
+| `paymentMethods` | object | No |  |
+
 ### GetScheduleResponseDto
 
 **Type:** `object`
@@ -4312,14 +4471,36 @@ Get a preview of an estimate template
 | `type` | string (enum: `one_time`, `recurring`) | No | Price type of the item |
 | `taxInclusive` | boolean | No | true if item amount is tax inclusive Default: `False` |
 
+### InvoiceProductSettingsDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `enableImportProductDescription` | boolean | No | Flag indicating if the product description import is enabled or not |
+| `descriptionOptional` | boolean | No | Flag indicating if the product description is optional or not |
+
+### InvoiceSettingsBusinessDetailsDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `logoUrl` | string | No |  |
+| `name` | string | Yes |  |
+| `phoneNo` | string | No |  |
+| `address` | object | No |  |
+| `website` | string | No |  |
+| `customValues` | array of string | No |  |
+
 ### InvoiceSettingsSenderConfigurationDto
 
 **Type:** `object`
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `fromName` | string | No | Sender name to be used while sending invoice |
-| `fromEmail` | string | No | Email id to be used while sending out invoices |
+| `fromName` | string | No | Sender name to be used while sending email notification |
+| `fromEmail` | string | No | Email id to be used while sending email notification |
 
 ### ItemTaxDto
 
@@ -4353,7 +4534,7 @@ Get a preview of an estimate template
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `intervalCount` | number | No | Late fees interval count |
+| `intervalCount` | number | Yes | Late fees interval count |
 | `interval` | string (enum: `minute`, `hour`, `day`, `week`, `month`, `one_time`) | Yes | Late fees interval |
 
 ### LateFeesGraceDto
@@ -4372,7 +4553,7 @@ Get a preview of an estimate template
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `type` | string (enum: `fixed`) | Yes |  |
-| `value` | number | Yes | 10 |
+| `value` | number | Yes | Max late fees to pay |
 
 ### ListEstimateTemplateResponseDTO
 

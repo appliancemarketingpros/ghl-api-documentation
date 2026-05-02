@@ -18,7 +18,7 @@ Documentation for Files API
 
 **Get List of Files/ Folders**
 
-Fetches list of files and folders from the media library
+Fetches list of files and folders from the media storage
 
 **Operation ID:** `fetch-media-content`
 
@@ -55,7 +55,7 @@ Fetches list of files and folders from the media library
 
 ### POST `/medias/upload-file`
 
-**Upload File into Media Library**
+**Upload File into Media Storage**
 
 If hosted is set to true then fileUrl is required. Else file is required. If adding a file, maximum allowed is 25 MB
 
@@ -96,7 +96,7 @@ If hosted is set to true then fileUrl is required. Else file is required. If add
 
 **Delete File or Folder**
 
-Deletes specific file or folder from the media library
+Deletes specific file or folder from the media storage
 
 **Operation ID:** `delete-media-content`
 
@@ -160,7 +160,7 @@ Updates a single file or folder by ID
 
 **Create Folder**
 
-Creates a new folder in the media library
+Creates a new folder in the media storage
 
 **Operation ID:** `create-media-folder`
 

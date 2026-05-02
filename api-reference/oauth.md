@@ -58,6 +58,8 @@ Use Access Tokens to access GoHighLevel resources on behalf of an authenticated 
 | `userId` | string | Yes | USER ID - Represent user id of person who performed installation |
 | `planId` | string | No | Plan Id of the subscribed plan in paid apps. |
 | `isBulkInstallation` | boolean | No |  |
+| `installToFutureLocations` | boolean | No | Boolean to control if user wants app to be automatically installed to future locations (only for company tokens) |
+| `approveAllLocations` | boolean | No | Boolean indicating if user approved all locations during bulk installation (only for company tokens) |
 
 **`400` - Bad Request**
 
@@ -105,6 +107,8 @@ This API allows you to generate locationAccessToken from AgencyAccessToken
 | `locationId` | string | No | Location ID - Present only for Sub-Account Access Token |
 | `planId` | string | No | Plan Id of the subscribed plan in paid apps. |
 | `userId` | string | Yes | USER ID - Represent user id of person who performed installation |
+| `appId` | string | No | App ID of the installed application |
+| `versionId` | string | No | Version ID of the installed app version |
 
 **`400` - Bad Request**
 
@@ -141,6 +145,7 @@ This API allows you fetch location where app is installed upon
 | `versionId` | query | string | No | VersionId of the app |
 | `onTrial` | query | boolean | No | Filters out locations which are installed for specified app in trial mode |
 | `planId` | query | string | No | Filters out location which are installed for specified app under the specified planId |
+| `locationId` | query | string | No | locationId |
 
 #### Responses
 
@@ -180,6 +185,8 @@ This API allows you fetch location where app is installed upon
 | `userId` | string | Yes | USER ID - Represent user id of person who performed installation |
 | `planId` | string | No | Plan Id of the subscribed plan in paid apps. |
 | `isBulkInstallation` | boolean | No |  |
+| `installToFutureLocations` | boolean | No | Boolean to control if user wants app to be automatically installed to future locations (only for company tokens) |
+| `approveAllLocations` | boolean | No | Boolean indicating if user approved all locations during bulk installation (only for company tokens) |
 
 ### GetAccessCodebodyDto
 
@@ -227,6 +234,8 @@ This API allows you fetch location where app is installed upon
 | `locationId` | string | No | Location ID - Present only for Sub-Account Access Token |
 | `planId` | string | No | Plan Id of the subscribed plan in paid apps. |
 | `userId` | string | Yes | USER ID - Represent user id of person who performed installation |
+| `appId` | string | No | App ID of the installed application |
+| `versionId` | string | No | Version ID of the installed app version |
 
 ### InstalledLocationSchema
 
@@ -238,3 +247,5 @@ This API allows you fetch location where app is installed upon
 | `name` | string | Yes | Name of the location |
 | `address` | string | Yes | Address linked to location |
 | `isInstalled` | boolean | No | Check if the requested app is installed for following location |
+| `versionId` | string | No | Version ID of the installed app version for this location |
+| `installedAt` | string | No | Timestamp when the app was installed on this location |

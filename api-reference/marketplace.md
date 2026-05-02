@@ -12,6 +12,8 @@ Documentation for Marketplace API
 
 - [Wallet Charges](#wallet-charges)
 - [App Management](#app-management)
+- [App Billing Management](#app-billing-management)
+- [External Auth Migration](#external-auth-migration)
 
 ## Wallet Charges
 
@@ -43,7 +45,7 @@ Create a new wallet charge
 | `companyId` | string | Yes | ID of the Agency the Sub-account belongs to |
 | `description` | string | Yes | Description of the charge |
 | `price` | number | No | Price per unit to charge |
-| `units` | string | Yes | Number of units to charge |
+| `units` | number | Yes | Number of units to charge |
 | `eventTime` | string | No | The timestamp when the event/transaction was performed. If blank, the billing timestamp will be set as the event time. ISO8601 Format. |
 
 #### Responses
@@ -52,15 +54,15 @@ Create a new wallet charge
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `success` | boolean | No |  |
-| `chargeId` | string | No |  |
+| `success` | boolean | No | Indicates whether the charge was created successfully |
+| `chargeId` | string | No | Unique identifier of the created charge |
 
 **`400` - Bad request**
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `message` | string | No |  |
-| `statusCode` | number | No |  |
+| `message` | string | No | Error message describing the bad request |
+| `statusCode` | number | No | HTTP status code |
 
 **`422` - Unprocessable Entity**
 
@@ -96,8 +98,9 @@ Get all wallet charges
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `charges` | array of object | No |  |
-| `total` | number | No |  |
+| `charges` | array of object | No | List of wallet charges |
+| `count` | number | No | Total number of charges |
+| `pagination` | object | No | Pagination metadata for the charges list |
 
 **`422` - Unprocessable Entity**
 
@@ -127,14 +130,14 @@ Delete a wallet charge
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `success` | boolean | No |  |
+| `success` | boolean | No | Indicates whether the charge was deleted successfully |
 
 **`404` - Charge not found**
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `message` | string | No |  |
-| `statusCode` | number | No |  |
+| `message` | string | No | Error message describing why the charge was not found |
+| `statusCode` | number | No | HTTP status code |
 
 **`422` - Unprocessable Entity**
 
@@ -183,8 +186,8 @@ Get specific wallet charge details
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `message` | string | No |  |
-| `statusCode` | number | No |  |
+| `message` | string | No | Error message describing why the charge was not found |
+| `statusCode` | number | No | HTTP status code |
 
 **`422` - Unprocessable Entity**
 
@@ -208,7 +211,7 @@ Check if account has sufficient funds
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `hasFunds` | boolean | No |  |
+| `hasFunds` | boolean | No | Indicates whether the sub-account has sufficient funds to be charged |
 
 **`422` - Unprocessable Entity**
 
@@ -225,6 +228,8 @@ Uninstalls an application from your company or a specific location. This will re
 **Operation ID:** `uninstall-application`
 
 **Tags:** App Management
+
+**Required Scopes:** `oauth.write`, `oauth.write`
 
 **API Version:** `2021-07-28`
 
@@ -272,6 +277,10 @@ Fetches installer details for the authenticated user. This endpoint returns info
 
 **Tags:** App Management
 
+**Required Scopes:** `marketplace-installer-details.readonly`, `marketplace-installer-details.readonly`
+
+**API Version:** `2021-07-28`
+
 #### Parameters
 
 | Parameter | In | Type | Required | Description |
@@ -289,6 +298,107 @@ Fetches installer details for the authenticated user. This endpoint returns info
 **`400` - Bad Request. Invalid request parameters or missing required data.**
 
 **`403` - Forbidden. The client does not have necessary permissions to access installer details.**
+
+---
+
+## App Billing Management
+
+### GET `/marketplace/app/{appId}/rebilling-config/location/{locationId}`
+
+**Get rebilling config for an app subscription and usage plans**
+
+Get rebilling config for an app subscription and usage plans for the authenticated sub-account. This endpoint returns the subscription and usage plans for an app.
+
+**Operation ID:** `get-rebilling-config-for-app`
+
+**Tags:** App Billing Management
+
+**Required Scopes:** `oauth.readonly`
+
+**API Version:** `2021-07-28`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `appId` | path | string | Yes | ID of the app to get rebilling config |
+| `locationId` | path | string | Yes | ID of the Sub-Account location to get rebilling config for |
+
+#### Responses
+
+**`200` - Successfully retrieved rebilling config for the app**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `plans` | object | Yes |  |
+
+**`400` - Bad Request. Invalid request parameters or missing required data.**
+
+**`403` - Forbidden. The client does not have necessary permissions to access installer details.**
+
+---
+
+## External Auth Migration
+
+### POST `/marketplace/external-auth/migration`
+
+**Migrate external authentication connection**
+
+Migrates an external authentication connection credentials (basic or oauth2) for a specific app and location. This endpoint validates the app configuration, stores credentials safely in CRM's native encrypted storage. With this the lifecycle of the token is managed by CRM.
+
+**Operation ID:** `migrateConnection`
+
+**Tags:** External Auth Migration
+
+**Required Scopes:** `marketplace-external-auth-migration.write`, `marketplace-external-auth-migration.write`
+
+**API Version:** `2021-07-28`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `oauth2`, `basic`) | Yes | Type of authentication - basic or oauth2 |
+| `locationId` | string | Yes | Location ID |
+| `appId` | string | Yes | App ID |
+| `appVersionId` | string | Yes | App Version ID |
+| `accountId` | string | Yes | Connection identifier |
+| `apiKey` | string | No | API Key (supported when type is basic) |
+| `basicCredentials` | object | No | Basic auth credentials as key/value pairs (supported when type is basic). Keys are validated against the app version externalAuthConfig.fields. |
+| `accessToken` | string | No | Access token (required when type is oauth2) |
+| `refreshToken` | string | No | Refresh token (required when type is oauth2) |
+| `expiryIn` | number | No | Access token expiry time in milliseconds (optional for oauth2) |
+| `expiryAt` | number | No | Timestamp for access token expiry (optional for oauth2) |
+| `scopes` | array of string | No | OAuth2 scopes (optional for oauth2) |
+| `displayName` | string | No | Display name for the connection (optional, defaults to accountId) |
+| `isDefault` | boolean | No | Whether this is the default connection for the location (optional, defaults to false) |
+
+#### Responses
+
+**`201` - Connection migrated successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `success` | boolean | Yes | Indicates if the migration was successful |
+| `identifier` | string | Yes | Unique identifier for the migrated connection |
+| `message` | string | No | Message describing the result |
+
+**`400` - Bad request - invalid input or auth type mismatch**
+
+**`401` - Unauthorized - invalid or missing token**
+
+**`404` - App not found**
+
+**`500` - Internal server error**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `statusCode` | number | No | HTTP status code |
+| `message` | string | No | Error message describing the internal server error |
 
 ---
 
@@ -320,6 +430,14 @@ Fetches installer details for the authenticated user. This endpoint returns info
 |----------|------|----------|-------------|
 | `installationDetails` | object | Yes |  |
 
+### GetRebillingConfigResponseDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `plans` | object | Yes |  |
+
 ### InstallerDetailsDTO
 
 **Type:** `object`
@@ -329,13 +447,64 @@ Fetches installer details for the authenticated user. This endpoint returns info
 | `companyId` | string | Yes | Company ID |
 | `locationId` | string | No | Location ID (if applicable) |
 | `companyName` | string | Yes | Company name |
-| `companyEmail` | string | Yes | Company email |
-| `companyOwnerFullName` | string | No | Company owner full name |
+| `relationshipNumber` | string | Yes | Company relationship number |
+| `companyEmail` | string | No | Company email. Will be null for sub-account installations due to PII concerns. |
+| `companyOwnerFullName` | string | No | Company owner full name. Will be null for sub-account installations due to PII concerns. |
 | `userId` | string | Yes | User ID who installed the app |
 | `isWhitelabelCompany` | boolean | Yes | Whether the company is a whitelabel company |
-| `companyHighLevelPlan` | string | No | Company plan |
+| `companyPlan` | string | No | Company plan. Will be null for sub-account installations due to business sensitivity. |
+| `companyHighLevelPlan` | string | No | Company plan. Will be null for sub-account installations due to business sensitivity. |
 | `marketplaceAppPlanId` | string | No | Marketplace app plan ID for paid apps |
 | `whitelabelDetails` | object | No |  |
+
+### InternalServerErrorDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `statusCode` | number | No | HTTP status code |
+| `message` | string | No | Error message describing the internal server error |
+
+### MigrateConnectionDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `oauth2`, `basic`) | Yes | Type of authentication - basic or oauth2 |
+| `locationId` | string | Yes | Location ID |
+| `appId` | string | Yes | App ID |
+| `appVersionId` | string | Yes | App Version ID |
+| `accountId` | string | Yes | Connection identifier |
+| `apiKey` | string | No | API Key (supported when type is basic) |
+| `basicCredentials` | object | No | Basic auth credentials as key/value pairs (supported when type is basic). Keys are validated against the app version externalAuthConfig.fields. |
+| `accessToken` | string | No | Access token (required when type is oauth2) |
+| `refreshToken` | string | No | Refresh token (required when type is oauth2) |
+| `expiryIn` | number | No | Access token expiry time in milliseconds (optional for oauth2) |
+| `expiryAt` | number | No | Timestamp for access token expiry (optional for oauth2) |
+| `scopes` | array of string | No | OAuth2 scopes (optional for oauth2) |
+| `displayName` | string | No | Display name for the connection (optional, defaults to accountId) |
+| `isDefault` | boolean | No | Whether this is the default connection for the location (optional, defaults to false) |
+
+### MigrateConnectionResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `success` | boolean | Yes | Indicates if the migration was successful |
+| `identifier` | string | Yes | Unique identifier for the migrated connection |
+| `message` | string | No | Message describing the result |
+
+### PlansDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `subscription` | array of object | Yes | Subscription plans |
+| `usage` | array of object | Yes | Usage-based plans |
 
 ### RaiseChargeBodyDTO
 
@@ -351,8 +520,39 @@ Fetches installer details for the authenticated user. This endpoint returns info
 | `companyId` | string | Yes | ID of the Agency the Sub-account belongs to |
 | `description` | string | Yes | Description of the charge |
 | `price` | number | No | Price per unit to charge |
-| `units` | string | Yes | Number of units to charge |
+| `units` | number | Yes | Number of units to charge |
 | `eventTime` | string | No | The timestamp when the event/transaction was performed. If blank, the billing timestamp will be set as the event time. ISO8601 Format. |
+
+### SubscriptionPlanDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `resellingAmount` | number | Yes | The reselling amount |
+| `baseAmount` | number | Yes | The base amount |
+| `planId` | string | Yes | The plan id |
+| `features` | array of string | Yes | The features |
+| `paymentType` | string | Yes | The payment time |
+| `name` | string | Yes | The plan name |
+| `paymentTime` | string | Yes | The payment time |
+
+### UsagePlanDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `productType` | string | Yes | The product type |
+| `productName` | string | Yes | The product name |
+| `usageUnit` | string | Yes | The usage unit for the meter |
+| `meterId` | string | Yes | The meter id |
+| `meterName` | string | Yes | The meter name |
+| `fixedPricePerUnit` | number | Yes | The fixed price per unit, applicable for fixed price type |
+| `priceType` | string (enum: `fixed`, `dynamic`) | Yes | The price type |
+| `minPricePerUnit` | string | Yes | The min price per unit, applicable for dynamic price type |
+| `maxPricePerUnit` | string | Yes | The max price per unit, applicable for dynamic price type |
+| `executionLimitPerCycle` | number | Yes | The execution limit per cycle |
 
 ### WhitelabelDetailsDTO
 

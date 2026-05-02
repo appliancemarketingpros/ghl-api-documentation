@@ -38,7 +38,7 @@ Create a new voice AI agent configuration and settings
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `locationId` | string | No | Unique identifier for the location where this agent will operate |
+| `locationId` | string | Yes | Unique identifier for the location where this agent will operate |
 | `agentName` | string | No | Display name for the voice AI agent, between 1-40 characters. Default: "My Agent {random 3 digit number}" |
 | `businessName` | string | No | Name of the business this agent represents. Default: Uses location name |
 | `welcomeMessage` | string | No | Initial greeting spoken when the agent answers calls. Default: Auto generated |
@@ -440,7 +440,7 @@ Returns a call log by callId.
 | `createdAt` | string | Yes | Timestamp when the call was created |
 | `duration` | number | Yes | Call duration in seconds |
 | `trialCall` | boolean | Yes | Whether this call was a trial call |
-| `executedCallActions` | array of object | Yes | Actions performed during the call |
+| `executedCallActions` | array of object | Yes | Actions performed during the call. Note: The APPOINTMENT_BOOKING action will only be visible in executedCallActions from Sep 9th 2025. |
 | `summary` | string | Yes | Call summary |
 | `transcript` | string | Yes | Call transcript |
 | `translation` | object | No |  |
@@ -479,9 +479,9 @@ Create a new action for a voice AI agent. Actions define specific behaviors and 
 |----------|------|----------|-------------|
 | `agentId` | string | Yes | Agent ID to attach the action to |
 | `locationId` | string | Yes | Location ID |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 #### Responses
 
@@ -490,9 +490,9 @@ Create a new action for a voice AI agent. Actions define specific behaviors and 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the created action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 **`400` - Bad Request**
 
@@ -532,9 +532,9 @@ Update an existing action for a voice AI agent. Modifies the behavior and config
 |----------|------|----------|-------------|
 | `agentId` | string | Yes | Agent ID to attach the action to |
 | `locationId` | string | Yes | Location ID |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 #### Responses
 
@@ -543,9 +543,9 @@ Update an existing action for a voice AI agent. Modifies the behavior and config
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the created action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 **`400` - Bad Request**
 
@@ -583,9 +583,9 @@ Retrieve details of a specific action by its ID. Returns the action configuratio
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 **`400` - Bad Request**
 
@@ -638,9 +638,9 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for this action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### AgentCreationRequestDTO
 
@@ -648,7 +648,7 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `locationId` | string | No | Unique identifier for the location where this agent will operate |
+| `locationId` | string | Yes | Unique identifier for the location where this agent will operate |
 | `agentName` | string | No | Display name for the voice AI agent, between 1-40 characters. Default: "My Agent {random 3 digit number}" |
 | `businessName` | string | No | Name of the business this agent represents. Default: Uses location name |
 | `welcomeMessage` | string | No | Initial greeting spoken when the agent answers calls. Default: Auto generated |
@@ -695,9 +695,8 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `actionId` | string | No | Action ID reference |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Action type |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Action type |
 | `actionName` | string | Yes | Action name |
-| `description` | string | No | Action description |
 | `actionParameters` | object | object | object | object | object | object | object | object | No | Action parameters - structure varies by actionType |
 | `executedAt` | string | No | When the action was executed |
 | `triggerReceivedAt` | string | No | When the trigger was received |
@@ -716,7 +715,7 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | `createdAt` | string | Yes | Timestamp when the call was created |
 | `duration` | number | Yes | Call duration in seconds |
 | `trialCall` | boolean | Yes | Whether this call was a trial call |
-| `executedCallActions` | array of object | Yes | Actions performed during the call |
+| `executedCallActions` | array of object | Yes | Actions performed during the call. Note: The APPOINTMENT_BOOKING action will only be visible in executedCallActions from Sep 9th 2025. |
 | `summary` | string | Yes | Call summary |
 | `transcript` | string | Yes | Call transcript |
 | `translation` | object | No |  |
@@ -743,7 +742,7 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | `triggerPrompt` | string | Yes | When to trigger this action during the call |
 | `transferToType` | string (enum: `number`) | Yes | Type of transfer destination (currently only "number" is supported) |
 | `transferToValue` | string | Yes | Phone number to transfer to. Must start with +, include country code, contain only numbers, and be 11-16 characters long (e.g., +12345678901). |
-| `triggerMessage` | string | No | Message to tell the caller before transferring |
+| `triggerMessage` | string | Yes | Message to tell the caller before transferring |
 | `hearWhisperMessage` | boolean | No | Whether to play whisper message to the receiving party |
 
 ### CreateActionResponseDTO
@@ -753,9 +752,9 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the created action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### CreateAgentResponseDTO
 
@@ -792,9 +791,9 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 |----------|------|----------|-------------|
 | `agentId` | string | Yes | Agent ID to attach the action to |
 | `locationId` | string | Yes | Location ID |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### CustomActionApiDetailsDTO
 
@@ -836,7 +835,7 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `triggerPrompt` | string | Yes | When to call the custom API |
-| `triggerMessage` | string | No | Message to tell the caller |
+| `triggerMessage` | string | Yes | Message to tell the caller |
 | `apiDetails` | object | Yes |  |
 | `selectedPaths` | array of string | No | Selected response paths to extract from API response. Required: at least 1 value if the method is GET. Should be empty if the method is POST. |
 
@@ -865,9 +864,9 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### GetAgentResponseDTO
 
@@ -936,10 +935,8 @@ Delete an existing action from a voice AI agent. This permanently removes the ac
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `triggerPrompt` | string | No | When to query the knowledge base |
-| `triggerMessage` | string | Yes | Message to tell the caller |
+| `triggerPrompt` | string | Yes | When to query the knowledge base |
 | `knowledgeBaseId` | string | Yes | Knowledge base ID to query |
-| `parameters` | array of object | No | Additional parameters for the knowledge base query |
 
 ### PatchAgentDTO
 
@@ -1064,9 +1061,9 @@ Tolerance level for caller response delays. Default: "high"
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | string | Yes | Unique identifier for the created action |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### UpdateSingleActionDTO
 
@@ -1076,9 +1073,9 @@ Tolerance level for caller response delays. Default: "high"
 |----------|------|----------|-------------|
 | `agentId` | string | Yes | Agent ID to attach the action to |
 | `locationId` | string | Yes | Location ID |
-| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`) | Yes | Type of action |
+| `actionType` | string (enum: `CALL_TRANSFER`, `DATA_EXTRACTION`, `IN_CALL_DATA_EXTRACTION`, `WORKFLOW_TRIGGER`, `SMS`, `APPOINTMENT_BOOKING`, `CUSTOM_ACTION`, `KNOWLEDGE_BASE`) | Yes | Type of action |
 | `name` | string | Yes | Human-readable name for this action |
-| `actionParameters` | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
+| `actionParameters` | object | object | object | object | object | object | object | object | Yes | Action parameters - structure varies by actionType |
 
 ### VoiceAILanguage
 

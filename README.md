@@ -20,15 +20,19 @@ Comprehensive API documentation for the GoHighLevel (HighLevel) platform, conver
 
 | API | Description | Documentation |
 |-----|-------------|---------------|
-| Agencies | 0 endpoints | [Agencies API](api-reference/agencies.md) |
+| Ad Manager | 94 endpoints | [Ad Manager API](api-reference/ad-manager.md) |
+| Affiliate Manager | 4 endpoints | [Affiliate Manager API](api-reference/affiliate-manager.md) |
+| Agent Studio | 11 endpoints | [Agent Studio API](api-reference/agent-studio.md) |
 | Associations | 10 endpoints | [Associations API](api-reference/associations.md) |
 | Blogs | 7 endpoints | [Blogs API](api-reference/blogs.md) |
+| Brand Boards | 5 endpoints | [Brand Boards API](api-reference/brand-boards.md) |
 | Businesses | 5 endpoints | [Businesses API](api-reference/businesses.md) |
-| Calendars | 34 endpoints | [Calendars API](api-reference/calendars.md) |
+| Calendars | 41 endpoints | [Calendars API](api-reference/calendars.md) |
 | Campaigns | 1 endpoints | [Campaigns API](api-reference/campaigns.md) |
 | Companies | 1 endpoints | [Companies API](api-reference/companies.md) |
 | Contacts | 32 endpoints | [Contacts API](api-reference/contacts.md) |
-| Conversations | 19 endpoints | [Conversations API](api-reference/conversations.md) |
+| Conversation Ai | 12 endpoints | [Conversation Ai API](api-reference/conversation-ai.md) |
+| Conversations | 29 endpoints | [Conversations API](api-reference/conversations.md) |
 | Courses | 1 endpoints | [Courses API](api-reference/courses.md) |
 | Custom Fields V2 | 8 endpoints | [Custom Fields V2 API](api-reference/custom-fields.md) |
 | Custom Menus | 5 endpoints | [Custom Menus API](api-reference/custom-menus.md) |
@@ -36,16 +40,17 @@ Comprehensive API documentation for the GoHighLevel (HighLevel) platform, conver
 | Emails | 5 endpoints | [Emails API](api-reference/emails.md) |
 | Forms | 3 endpoints | [Forms API](api-reference/forms.md) |
 | Funnels | 7 endpoints | [Funnels API](api-reference/funnels.md) |
-| Invoices | 41 endpoints | [Invoices API](api-reference/invoices.md) |
+| Invoices | 42 endpoints | [Invoices API](api-reference/invoices.md) |
+| Knowledge Base | 14 endpoints | [Knowledge Base API](api-reference/knowledge-base.md) |
 | Trigger Links | 6 endpoints | [Trigger Links API](api-reference/links.md) |
 | Sub-Accounts (Locations) | 29 endpoints | [Sub-Accounts (Locations) API](api-reference/locations.md) |
-| Marketplace | 7 endpoints | [Marketplace API](api-reference/marketplace.md) |
+| Marketplace | 9 endpoints | [Marketplace API](api-reference/marketplace.md) |
 | Media Library | 7 endpoints | [Media Library API](api-reference/medias.md) |
 | OAuth 2.0 | 3 endpoints | [OAuth 2.0 API](api-reference/oauth.md) |
 | Objects | 9 endpoints | [Objects API](api-reference/objects.md) |
-| Opportunities | 10 endpoints | [Opportunities API](api-reference/opportunities.md) |
-| Payments | 24 endpoints | [Payments API](api-reference/payments.md) |
-| Phone System | 2 endpoints | [Phone System API](api-reference/phone-system.md) |
+| Opportunities | 12 endpoints | [Opportunities API](api-reference/opportunities.md) |
+| Payments | 23 endpoints | [Payments API](api-reference/payments.md) |
+| Phone System | 4 endpoints | [Phone System API](api-reference/phone-system.md) |
 | Products | 27 endpoints | [Products API](api-reference/products.md) |
 | Proposals & Estimates | 4 endpoints | [Proposals & Estimates API](api-reference/proposals.md) |
 | SaaS API | 22 endpoints | [SaaS API API](api-reference/saas-api.md) |

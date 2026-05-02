@@ -16,6 +16,7 @@ Documentation for Calendars API
 - [Appointment Notes](#appointment-notes)
 - [Calendar Resources: Rooms & Equipments](#calendar-resources:-rooms-&-equipments)
 - [Calendar Notifications](#calendar-notifications)
+- [Availability](#availability)
 
 ## Calendar Groups
 
@@ -1597,7 +1598,7 @@ Find Event notification by notificationId
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `_id` | string | No | Notification ID |
-| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`) | No |  |
+| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`, `business`) | No |  |
 | `additionalEmailIds` | array of string | No |  |
 | `additionalPhoneNumbers` | array of string | No |  |
 | `channel` | string (enum: `email`, `inApp`, `sms`, `whatsapp`) | No |  |
@@ -1647,10 +1648,10 @@ Update Event notification by id
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`) | No | Notification recipient type |
+| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`, `business`) | No | Notification recipient type |
 | `additionalEmailIds` | array of string | No | Additional email addresses to receive notifications. |
 | `additionalPhoneNumbers` | array of string | No | Additional phone numbers to receive notifications. |
-| `selectedUsers` | array of string | No | selected user for in-App notification |
+| `selectedUsers` | array of string | No | Selected users for in-App and business email notifications. Supports user IDs and special keyword "sub_account_admin" |
 | `channel` | string (enum: `email`, `inApp`, `sms`, `whatsapp`) | No | Notification channel |
 | `notificationType` | string (enum: `booked`, `confirmation`, `cancellation`, `reminder`, `followup`, `reschedule`) | No | Notification type |
 | `isActive` | boolean | No | Is the notification active Default: `True` |
@@ -1724,6 +1725,305 @@ Delete notification
 **`400` - Bad Request**
 
 **`401` - Unauthorized**
+
+---
+
+## Availability
+
+### GET `/calendars/schedules/search`
+
+**List user availability schedule**
+
+Retrieve user availability schedules based on various filters including location, calendar, and user. Supports pagination.
+
+**Operation ID:** `getAllSchedules`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.readonly`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes | Location ID to filter schedules by |
+| `userId` | query | string | Yes | User ID to filter schedules by specific user |
+| `calendarId` | query | string | No | Calendar ID for filtering schedules by specific calendar |
+| `skip` | query | number | No | Number of items to skip for pagination |
+| `limit` | query | number | No | Maximum number of items to return (max 500) |
+
+#### Responses
+
+**`200` - Schedules retrieved successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedules` | array of object | Yes | Array of schedules |
+
+**`400` - Invalid request parameters**
+
+**`401` - User not authenticated**
+
+---
+
+### GET `/calendars/schedules/{id}`
+
+**Get user availability schedule**
+
+Retrieve a specific schedule by its unique identifier. Returns detailed information including rules, timezone, and associated calendars/users.
+
+**Operation ID:** `getScheduleById`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.readonly`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Unique identifier of the schedule |
+
+#### Responses
+
+**`200` - Schedule found and retrieved successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedule` | object | Yes |  |
+
+**`400` - Invalid request parameters**
+
+**`401` - User not authenticated**
+
+**`404` - Schedule with the specified ID was not found**
+
+---
+
+### PUT `/calendars/schedules/{id}`
+
+**Update user availability schedule**
+
+Modify an existing schedule by updating its rules, timezone, and name All fields are optional - only provided fields will be updated.
+
+**Operation ID:** `updateSchedule`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.write`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Unique identifier of the schedule to update |
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | No | Human-readable name for the schedule |
+| `rules` | array of object | No | Updated schedule rules defining when the schedule is active |
+| `timezone` | string | No | Updated timezone for the schedule (IANA timezone identifier) |
+
+**`rules` array item properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `wday`, `date`) | Yes | Type of schedule rule - weekday (recurring) or date (specific date) |
+| `intervals` | array of object | Yes | Time intervals for the rule (e.g., 9 AM to 5 PM) |
+| `date` | string | No | Specific date in YYYY-MM-DD format (only for date-type rules) |
+| `day` | string (enum: `sunday`, `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`) | No | Day of week (only for weekday-type rules) |
+
+#### Responses
+
+**`200` - Schedule updated successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedule` | object | Yes |  |
+
+**`400` - Invalid request parameters**
+
+**`401` - User not authenticated**
+
+**`404` - Schedule with the specified ID was not found**
+
+**`422` - Validation errors in schedule rules or conflicting data**
+
+---
+
+### DELETE `/calendars/schedules/{id}`
+
+**Delete user availability schedule**
+
+Permanently remove a schedule and all its associated rules. This action cannot be undone.
+
+**Operation ID:** `deleteSchedule`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.write`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Unique identifier of the schedule to delete |
+
+#### Responses
+
+**`200` - Schedule deleted successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `success` | boolean | No | Whether the deletion was successful |
+
+**`400` - Invalid request parameters**
+
+**`401` - User not authenticated**
+
+**`404` - Schedule with the specified ID was not found**
+
+---
+
+### POST `/calendars/schedules`
+
+**Create user availability schedule**
+
+Create new schedule with specified rules, timezone, location, user and calendar associations.
+
+**Operation ID:** `createSchedule`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.write`
+
+**API Version:** `2021-04-15`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `rules` | array of object | No | Schedule rules defining when the schedule is active |
+| `timezone` | string | Yes | Timezone for the schedule (IANA timezone identifier) |
+| `locationId` | string | Yes | Location ID where this schedule applies |
+| `name` | string | Yes | Human-readable name for the schedule |
+| `userId` | string | Yes | User ID associated with the schedule |
+| `calendarIds` | array of string | No | Calendar IDs associated with the schedule |
+
+**`rules` array item properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `wday`, `date`) | Yes | Type of schedule rule - weekday (recurring) or date (specific date) |
+| `intervals` | array of object | Yes | Time intervals for the rule (e.g., 9 AM to 5 PM) |
+| `date` | string | No | Specific date in YYYY-MM-DD format (only for date-type rules) |
+| `day` | string (enum: `sunday`, `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`) | No | Day of week (only for weekday-type rules) |
+
+#### Responses
+
+**`201` - Schedule created successfully**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedule` | object | Yes |  |
+
+**`400` - Invalid request parameters**
+
+**`401` - User not authenticated**
+
+**`422` - Validation errors in schedule rules or conflicting data**
+
+---
+
+### PUT `/calendars/schedules/{id}/associations/{calendarId}`
+
+**Apply user availability schedule to a calendar**
+
+Associates a calendar with the given schedule by adding the calendarId to a schedule
+
+**Operation ID:** `add-calendar-to-schedule`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.write`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Unique identifier of the schedule |
+| `calendarId` | path | string | Yes | Unique identifier of the team calendar to add to the schedule |
+
+#### Responses
+
+**`200` - Calendar successfully added to schedule**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `success` | boolean | No |  |
+
+**`400` - Schedule and calendar must belong to the same location**
+
+**`401` - User not authenticated**
+
+**`404` - Schedule or calendar not found**
+
+---
+
+### DELETE `/calendars/schedules/{id}/associations/{calendarId}`
+
+**Remove user availability schedule from a calendar**
+
+Removes the association between a team calendar and the given schedule by removing the calendarId from the schedule
+
+**Operation ID:** `remove-calendar-from-schedule`
+
+**Tags:** Availability
+
+**Required Scopes:** `calendars.write`
+
+**API Version:** `2021-04-15`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `id` | path | string | Yes | Unique identifier of the schedule |
+| `calendarId` | path | string | Yes | Unique identifier of the calendar to remove from the schedule |
+
+#### Responses
+
+**`200` - Calendar successfully removed from schedule**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `success` | boolean | No |  |
+
+**`400` - Schedule and calendar must belong to the same location**
+
+**`401` - User not authenticated**
+
+**`404` - Schedule or calendar not found**
 
 ---
 
@@ -2050,7 +2350,7 @@ Delete notification
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `_id` | string | No | Notification ID |
-| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`) | No |  |
+| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`, `business`) | No |  |
 | `additionalEmailIds` | array of string | No |  |
 | `additionalPhoneNumbers` | array of string | No |  |
 | `channel` | string (enum: `email`, `inApp`, `sms`, `whatsapp`) | No |  |
@@ -2169,7 +2469,7 @@ Delete notification
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`) | Yes | notification recipient type |
+| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`, `business`) | Yes | notification recipient type |
 | `channel` | string (enum: `email`, `inApp`, `sms`, `whatsapp`) | Yes | Notification channel |
 | `notificationType` | string (enum: `booked`, `confirmation`, `cancellation`, `reminder`, `followup`, `reschedule`) | Yes | Notification type |
 | `isActive` | boolean | No | Is the notification active Default: `True` |
@@ -2180,7 +2480,7 @@ Delete notification
 | `beforeTime` | array of object | No | Specifies the time before which the reminder notification should be sent. This is not required for other notification types. |
 | `additionalEmailIds` | array of string | No | Additional email addresses to receive notifications. |
 | `additionalPhoneNumbers` | array of string | No | Additional phone numbers to receive notifications. |
-| `selectedUsers` | array of string | No | selected user for in-App notification |
+| `selectedUsers` | array of string | No | Selected users for in-App and business email notifications. Supports user IDs and special keyword "sub_account_admin" |
 | `fromAddress` | string | No | from address for email notification |
 | `fromName` | string | No | from name for email/sms notification |
 | `fromNumber` | string | No | from number for sms notification |
@@ -2198,6 +2498,19 @@ Delete notification
 | `outOfService` | number | Yes | Quantity of the out of service equipment. |
 | `capacity` | number | Yes | Capacity of the room. |
 | `calendarIds` | array of string | Yes | Service calendar IDs to be mapped with the resource.      One equipment can only be mapped with one service calendar.      One room can be mapped with multiple service calendars. |
+
+### CreateScheduleDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `rules` | array of object | No | Schedule rules defining when the schedule is active |
+| `timezone` | string | Yes | Timezone for the schedule (IANA timezone identifier) |
+| `locationId` | string | Yes | Location ID where this schedule applies |
+| `name` | string | Yes | Human-readable name for the schedule |
+| `userId` | string | Yes | User ID associated with the schedule |
+| `calendarIds` | array of string | No | Calendar IDs associated with the schedule |
 
 ### CreatedOrUpdatedBy
 
@@ -2230,6 +2543,14 @@ Delete notification
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `success` | boolean | No |  |
+
+### GetAllSchedulesResponseDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedules` | array of object | Yes | Array of schedules |
 
 ### GetCalendarEventSuccessfulResponseDTO
 
@@ -2421,6 +2742,51 @@ Delete notification
 |----------|------|----------|-------------|
 | `success` | boolean | No | Success |
 
+### ScheduleIntervalDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `from` | string | Yes | Start time in HH:MM format (24-hour format) |
+| `to` | string | Yes | End time in HH:MM format (24-hour format) |
+
+### ScheduleObjectResponseDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | string | Yes | Unique identifier for the schedule |
+| `name` | string | Yes | Human-readable name for the schedule |
+| `locationId` | string | Yes | Location ID where this schedule applies |
+| `rules` | array of object | Yes | Schedule rules defining when the schedule is active |
+| `timezone` | string | Yes | Timezone for the schedule (IANA timezone identifier) |
+| `dateAdded` | string | Yes | ISO date string when the schedule was created |
+| `dateUpdated` | string | Yes | ISO date string when the schedule was last updated |
+| `userId` | string | Yes | User ID associated with the schedule |
+| `calendarIds` | array of string | No | Calendar IDs associated with the schedule |
+| `deleted` | boolean | Yes | Whether the schedule has been deleted |
+
+### ScheduleResponseDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schedule` | object | Yes |  |
+
+### ScheduleRuleDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `type` | string (enum: `wday`, `date`) | Yes | Type of schedule rule - weekday (recurring) or date (specific date) |
+| `intervals` | array of object | Yes | Time intervals for the rule (e.g., 9 AM to 5 PM) |
+| `date` | string | No | Specific date in YYYY-MM-DD format (only for date-type rules) |
+| `day` | string (enum: `sunday`, `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`) | No | Day of week (only for weekday-type rules) |
+
 ### SchedulesDTO
 
 **Type:** `object`
@@ -2481,10 +2847,10 @@ Delete notification
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`) | No | Notification recipient type |
+| `receiverType` | string (enum: `contact`, `guest`, `assignedUser`, `emails`, `phoneNumbers`, `business`) | No | Notification recipient type |
 | `additionalEmailIds` | array of string | No | Additional email addresses to receive notifications. |
 | `additionalPhoneNumbers` | array of string | No | Additional phone numbers to receive notifications. |
-| `selectedUsers` | array of string | No | selected user for in-App notification |
+| `selectedUsers` | array of string | No | Selected users for in-App and business email notifications. Supports user IDs and special keyword "sub_account_admin" |
 | `channel` | string (enum: `email`, `inApp`, `sms`, `whatsapp`) | No | Notification channel |
 | `notificationType` | string (enum: `booked`, `confirmation`, `cancellation`, `reminder`, `followup`, `reschedule`) | No | Notification type |
 | `isActive` | boolean | No | Is the notification active Default: `True` |
@@ -2512,6 +2878,16 @@ Delete notification
 | `capacity` | number | No | Capacity of the room. |
 | `calendarIds` | array of string | No | Service calendar IDs to be mapped with the resource.      One equipment can only be mapped with one service calendar.      One room can be mapped with multiple service calendars. |
 | `isActive` | boolean | No |  |
+
+### UpdateScheduleDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | No | Human-readable name for the schedule |
+| `rules` | array of object | No | Updated schedule rules defining when the schedule is active |
+| `timezone` | string | No | Updated timezone for the schedule (IANA timezone identifier) |
 
 ### ValidateGroupSlugPostBody
 

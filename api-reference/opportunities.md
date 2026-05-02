@@ -10,10 +10,56 @@ Documentation for Opportunities API
 
 ## Table of Contents
 
+- [Lost reason](#lost-reason)
 - [Search](#search)
 - [Pipelines](#pipelines)
 - [Opportunities](#opportunities)
 - [Followers](#followers)
+
+## Lost reason
+
+### GET `/opportunities/lost-reason`
+
+**Get lost reason**
+
+Get lost reason
+
+**Operation ID:** `get-lost-reason`
+
+**Tags:** Lost reason
+
+**Required Scopes:** `opportunities.readonly`
+
+**API Version:** `2021-07-28`
+
+#### Parameters
+
+| Parameter | In | Type | Required | Description |
+|-----------|-----|------|----------|-------------|
+| `locationId` | query | string | Yes |  |
+| `name` | query | string | No | lost reason name |
+| `deleted` | query | boolean | No | deleted |
+| `query` | query | string | No | search query |
+| `skip` | query | number | No | skip |
+| `limit` | query | number | No | limit |
+| `getCount` | query | boolean | No | get count |
+
+#### Responses
+
+**`200` - Successful response**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `lostReasons` | array of object | No |  |
+| `total` | number | No |  |
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+**`422` - Unprocessable Entity**
+
+---
 
 ## Search
 
@@ -64,6 +110,64 @@ Search Opportunity
 |----------|------|----------|-------------|
 | `opportunities` | array of object | No |  |
 | `meta` | object | No |  |
+| `aggregations` | object | No |  |
+
+**`400` - Bad Request**
+
+**`401` - Unauthorized**
+
+**`422` - Unprocessable Entity**
+
+---
+
+### POST `/opportunities/search`
+
+**Search Opportunities**
+
+Search Opportunities based on combinations of advanced filters. Documentation Link - https://doc.clickup.com/8631005/d/h/87cpx-424216/7bf11bc9b94f80f
+
+**Operation ID:** `search-opportunities-advanced`
+
+**Tags:** Search
+
+**Required Scopes:** `opportunities.readonly`
+
+**External Documentation:** [Click here for more information](https://doc.clickup.com/8631005/d/h/87cpx-424216/7bf11bc9b94f80f)
+
+**API Version:** `2021-07-28`
+
+#### Request Body
+
+**Required:** Yes
+
+**Content Type:** `application/json`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location Id |
+| `query` | string | Yes |  |
+| `limit` | number | Yes |  |
+| `page` | number | Yes |  |
+| `searchAfter` | array of string | Yes |  |
+| `additionalDetails` | object | Yes |  |
+
+**`additionalDetails` object properties:**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `notes` | boolean | Yes |  |
+| `tasks` | boolean | Yes |  |
+| `calendarEvents` | boolean | Yes |  |
+| `unReadConversations` | boolean | Yes |  |
+
+#### Responses
+
+**`200` - Successful response**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `opportunities` | array of object | No |  |
+| `total` | number | Yes |  |
 | `aggregations` | object | No |  |
 
 **`400` - Bad Request**
@@ -265,6 +369,7 @@ Update Opportunity Status
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `status` | string (enum: `open`, `won`, `lost`, `abandoned`, `all`) | Yes |  |
+| `lostReasonId` | string | No | lost reason Id |
 
 #### Responses
 
@@ -304,14 +409,18 @@ Upsert Opportunity
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
+| `id` | string | No | opportunityId |
 | `pipelineId` | string | Yes | pipeline Id |
 | `locationId` | string | Yes | locationId |
-| `contactId` | string | Yes | contactId |
+| `followers` | array of string | Yes | contactId |
+| `isRemoveAllFollowers` | boolean | Yes | isRemoveAllFollowers |
+| `followersActionType` | string (enum: `add`, `remove`) | Yes | followers action type |
 | `name` | string | No | name |
 | `status` | string (enum: `open`, `won`, `lost`, `abandoned`, `all`) | No |  |
 | `pipelineStageId` | string | No |  |
-| `monetaryValue` | number | No |  |
+| `monetaryValue` | object | No |  |
 | `assignedTo` | string | No |  |
+| `lostReasonId` | string | No | lost reason Id |
 
 #### Responses
 
@@ -431,7 +540,7 @@ Add Followers
 
 **Remove Followers**
 
-Remove Followers
+Allows removal of one or all followers from an opportunity.
 
 **Operation ID:** `remove-followers-opportunity`
 
@@ -446,6 +555,7 @@ Remove Followers
 | Parameter | In | Type | Required | Description |
 |-----------|-----|------|----------|-------------|
 | `id` | path | string | Yes | Opportunity Id |
+| `isRemoveAllFollowers` | query | boolean | No |  |
 
 #### Request Body
 
@@ -459,7 +569,7 @@ Remove Followers
 
 #### Responses
 
-**`200` - Successful response**
+**`200` - Followers successfully removed.**
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -475,6 +585,17 @@ Remove Followers
 ---
 
 ## Schemas
+
+### AdditionalDetailsDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `notes` | boolean | Yes |  |
+| `tasks` | boolean | Yes |  |
+| `calendarEvents` | boolean | Yes |  |
+| `unReadConversations` | boolean | Yes |  |
 
 ### CreateAddFollowersSuccessfulResponseDto
 
@@ -551,6 +672,40 @@ Remove Followers
 |----------|------|----------|-------------|
 | `opportunity` | object | No |  |
 
+### LostReasonResponseSchema
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | string | No | lost reason id |
+| `name` | string | No | lost reason name |
+| `locationId` | string | No | location id |
+| `updatedAt` | string | No | updated at |
+| `createdAt` | string | No | created at |
+
+### LostReasonsResponseSchema
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `lostReasons` | array of object | No |  |
+| `total` | number | No |  |
+
+### OpportunitySearchBodyDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `locationId` | string | Yes | Location Id |
+| `query` | string | Yes |  |
+| `limit` | number | Yes |  |
+| `page` | number | Yes |  |
+| `searchAfter` | array of string | Yes |  |
+| `additionalDetails` | object | Yes |  |
+
 ### PipelinesResponseSchema
 
 **Type:** `object`
@@ -563,6 +718,17 @@ Remove Followers
 | `showInFunnel` | boolean | No |  |
 | `showInPieChart` | boolean | No |  |
 | `locationId` | string | No |  |
+| `colorRenderMode` | string (enum: `dot`, `bg-tint`, `none`) | No | How pipeline/stage colors are rendered |
+
+### PostSearchSuccessfulResponseDto
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `opportunities` | array of object | No |  |
+| `total` | number | Yes |  |
+| `aggregations` | object | No |  |
 
 ### SearchMetaResponseSchema
 
@@ -614,11 +780,13 @@ Remove Followers
 | `contactId` | string | No |  |
 | `locationId` | string | No |  |
 | `contact` | object | No |  |
-| `notes` | array of string | No |  |
-| `tasks` | array of string | No |  |
-| `calendarEvents` | array of string | No |  |
+| `notes` | array of array of any | No |  |
+| `tasks` | array of array of any | No |  |
+| `calendarEvents` | array of array of any | No |  |
+| `lostReasonId` | string | No |  |
 | `customFields` | array of object | No |  |
 | `followers` | array of array of any | No |  |
+| `externalObjectId` | string | No |  |
 
 ### SearchSuccessfulResponseDto
 
@@ -651,6 +819,7 @@ Remove Followers
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `status` | string (enum: `open`, `won`, `lost`, `abandoned`, `all`) | Yes |  |
+| `lostReasonId` | string | No | lost reason Id |
 
 ### UpsertOpportunityDto
 
@@ -658,14 +827,18 @@ Remove Followers
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
+| `id` | string | No | opportunityId |
 | `pipelineId` | string | Yes | pipeline Id |
 | `locationId` | string | Yes | locationId |
-| `contactId` | string | Yes | contactId |
+| `followers` | array of string | Yes | contactId |
+| `isRemoveAllFollowers` | boolean | Yes | isRemoveAllFollowers |
+| `followersActionType` | string (enum: `add`, `remove`) | Yes | followers action type |
 | `name` | string | No | name |
 | `status` | string (enum: `open`, `won`, `lost`, `abandoned`, `all`) | No |  |
 | `pipelineStageId` | string | No |  |
-| `monetaryValue` | number | No |  |
+| `monetaryValue` | object | No |  |
 | `assignedTo` | string | No |  |
+| `lostReasonId` | string | No | lost reason Id |
 
 ### UpsertOpportunitySuccessfulResponseDto
 

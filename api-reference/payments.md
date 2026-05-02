@@ -137,14 +137,15 @@ The "List Orders" API allows to retrieve a paginated list of orders. Customize y
 |-----------|-----|------|----------|-------------|
 | `locationId` | query | string | No | LocationId is the id of the sub-account. |
 | `altId` | query | string | Yes | AltId is the unique identifier e.g: location id. |
-| `altType` | query | string | Yes | AltType is the type of identifier. |
 | `status` | query | string | No | Order status. |
+| `paymentStatus` | query | string (enum: `paid`, `unpaid`, `refunded`, `partially_paid`) | No | Payment Status of the Order |
 | `paymentMode` | query | string | No | Mode of payment. |
 | `startAt` | query | string | No | Starting interval of orders. |
 | `endAt` | query | string | No | Closing interval of orders. |
 | `search` | query | string | No | The name of the order for searching. |
 | `contactId` | query | string | No | Contact id for filtering of orders. |
 | `funnelProductIds` | query | string | No | Funnel product ids separated by comma. |
+| `sourceId` | query | string | No | Source id |
 | `limit` | query | number | No | The maximum number of items to be included in a single page of results |
 | `offset` | query | number | No | The starting index of the page, indicating the position from which the results should be retrieved. |
 
@@ -216,6 +217,7 @@ The "Get Order by ID" API allows to retrieve information for a specific order us
 | `traceId` | string | No | Trace id of the order. |
 | `automaticTaxesCalculated` | boolean | No | Automatic taxes applied for the Order |
 | `taxCalculationProvider` | object | No | Provider name for automatic tax calculation |
+| `createdBy` | string | No | User ID who created the order. |
 
 **`400` - Order not found**
 
@@ -243,7 +245,7 @@ The "Record Order Payment" API allows to record a payment for an order. Use this
 
 | Parameter | In | Type | Required | Description |
 |-----------|-----|------|----------|-------------|
-| `orderId` | path | string | Yes | MongoDB Order ID |
+| `orderId` | path | string | Yes | Order ID |
 
 #### Request Body
 
@@ -289,35 +291,6 @@ The "Record Order Payment" API allows to record a payment for an order. Use this
 **`401` - Unauthorized**
 
 **`422` - Unprocessable Entity**
-
----
-
-### POST `/payments/orders/migrate-order-ps`
-
-**migration Endpoint for Order Payment Status**
-
-Process to migrate all the older orders and based on the statuses introduce the payment statuses as well
-
-**Operation ID:** `post-migrate-order-payment-status`
-
-**Tags:** Orders
-
-**API Version:** `2021-07-28`
-
-#### Parameters
-
-| Parameter | In | Type | Required | Description |
-|-----------|-----|------|----------|-------------|
-| `locationId` | query | string | No | LocationId is the id of the sub-account. |
-| `altId` | query | string | Yes | AltId is the unique identifier e.g: location id. |
-
-#### Responses
-
-**`201` - **
-
-**`400` - Bad Request**
-
-**`401` - Unauthorized**
 
 ---
 
@@ -572,6 +545,7 @@ The "Get Transaction by ID" API allows to retrieve information for a specific tr
 | `qboResponse` | object | No | Qbo details of the transaction. |
 | `traceId` | string | No | Trace id of the transaction. |
 | `mergedFromContactId` | string | No | ID of the contact that was merged from. |
+| `createdBy` | string | No | User ID who created the transaction. |
 
 **`400` - Transaction not found**
 
@@ -613,6 +587,7 @@ The "List Subscriptions" API allows to retrieve a paginated list of subscription
 | `id` | query | string | No | Subscription id for filtering of subscriptions. |
 | `limit` | query | number | No | The maximum number of items to be included in a single page of results |
 | `offset` | query | number | No | The starting index of the page, indicating the position from which the results should be retrieved. |
+| `getPaymentsCollectedCount` | query | boolean | No | Get the total payments collected for the subscription. |
 
 #### Responses
 
@@ -686,6 +661,7 @@ The "Get Subscription by ID" API allows to retrieve information for a specific s
 | `canceledAt` | string | No | Cancellation timestamp of the subscription. |
 | `canceledBy` | string | No | User id who cancelled the subscription. |
 | `traceId` | string | No | Trace id of the subscription. |
+| `createdBy` | string | No | User ID who created the subscription. |
 
 **`400` - Subscription not found**
 
@@ -1576,12 +1552,10 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `_id` | string | Yes | The unique identifier for the product. |
 | `description` | string | No | product description |
 | `variants` | array of object | No | An array of variants for the product. |
-| `medias` | array of object | No | An array of medias for the product. |
 | `locationId` | string | Yes | The unique identifier for the location. |
 | `name` | string | Yes | The name of the product. |
 | `productType` | string | Yes | The type of the product (e.g., PHYSICAL). |
 | `availableInStore` | boolean | No | Indicates whether the product is available in-store. |
-| `userId` | string | No | The unique identifier for the user who created the product. |
 | `createdAt` | string | Yes | The creation timestamp of the product. |
 | `updatedAt` | string | Yes | The last update timestamp of the product. |
 | `statementDescriptor` | string | No | The statement descriptor for the product. |
@@ -1590,10 +1564,8 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `isTaxesEnabled` | boolean | No | The field indicates whether taxes are enabled for the product or not. Default: `False` |
 | `taxes` | array of string | No | An array of ids of Taxes attached to the Product. If the expand query includes tax, the taxes will be of type `ProductTaxDto`. Please refer to the `ProductTaxDto` for additional details. |
 | `automaticTaxCategoryId` | string | No | Tax category ID for Automatic taxes calculation. |
-| `isLabelEnabled` | boolean | No | A boolean representing whether a product label is enabled or not Default: `False` |
 | `label` | object | No |  |
 | `slug` | string | No | The slug of the product by which the product will be navigated |
-| `seo` | object | No |  |
 
 ### DeleteCouponParams
 
@@ -1732,6 +1704,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `traceId` | string | No | Trace id of the order. |
 | `automaticTaxesCalculated` | boolean | No | Automatic taxes applied for the Order |
 | `taxCalculationProvider` | object | No | Provider name for automatic tax calculation |
+| `createdBy` | string | No | User ID who created the order. |
 
 ### GetSubscriptionResponseSchema
 
@@ -1766,6 +1739,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `canceledAt` | string | No | Cancellation timestamp of the subscription. |
 | `canceledBy` | string | No | User id who cancelled the subscription. |
 | `traceId` | string | No | Trace id of the subscription. |
+| `createdBy` | string | No | User ID who created the subscription. |
 
 ### GetTxnResponseSchema
 
@@ -1802,6 +1776,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `qboResponse` | object | No | Qbo details of the transaction. |
 | `traceId` | string | No | Trace id of the transaction. |
 | `mergedFromContactId` | string | No | ID of the contact that was merged from. |
+| `createdBy` | string | No | User ID who created the transaction. |
 
 ### IntegrationProviderSchema
 
@@ -1914,6 +1889,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `fulfillmentStatus` | string | No | Fulfillment status of the order. |
 | `onetimeProducts` | number | No | Total one time products in an order. |
 | `recurringProducts` | number | No | Total recurring time products in an order. |
+| `createdBy` | string | No | User ID who created the order. |
 
 ### OrderSource
 
@@ -1960,28 +1936,6 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `title` | string | Yes | The content for the product label. |
 | `startDate` | string | No | Start date in YYYY-MM-DDTHH:mm:ssZ format |
 | `endDate` | string | No | Start date in YYYY-MM-DDTHH:mm:ssZ format |
-
-### ProductMediaDto
-
-**Type:** `object`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes | The unique identifier for the media. |
-| `title` | string | No | The title of the media file. |
-| `url` | string | Yes | The URL where the media file is stored. |
-| `type` | string (enum: `image`, `video`) | Yes | The type of the media file (e.g., image, video will be supporting soon). |
-| `isFeatured` | boolean | No | Indicates whether the media is featured. |
-| `priceIds` | array of array of any | No | Mongo ObjectIds of the prices for which the media is assigned |
-
-### ProductSEODto
-
-**Type:** `object`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `title` | string | No | SEO title of the product which will be displayed in the preview |
-| `description` | string | No | SEO Description for the product which will be displayed in the preview |
 
 ### ProductVariantDto
 
@@ -2049,6 +2003,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `ipAddress` | string | No | Ip address from where subscription was initiated. |
 | `createdAt` | string | Yes | The creation timestamp of the subscription. |
 | `updatedAt` | string | Yes | The update timestamp of the subscription. |
+| `createdBy` | string | No | User ID who created the subscription. |
 
 ### TxnResponseSchema
 
@@ -2085,6 +2040,7 @@ Toggle capabilities for the marketplace app tied to the OAuth client
 | `amountRefunded` | number | No | Transaction amount refunded. |
 | `paymentMethod` | object | No | Transaction payment method details. |
 | `fulfilledAt` | string | Yes | The charged timestamp of the transaction. |
+| `createdBy` | string | No | User ID who created the transaction. |
 
 ### UpdateCouponParams
 

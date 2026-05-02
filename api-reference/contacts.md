@@ -544,6 +544,9 @@ Create Note
 |----------|------|----------|-------------|
 | `userId` | string | No |  |
 | `body` | string | Yes |  |
+| `title` | string | No |  |
+| `color` | string | No |  |
+| `pinned` | boolean | No |  |
 
 #### Responses
 
@@ -628,7 +631,10 @@ Update Note
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `userId` | string | No |  |
-| `body` | string | Yes |  |
+| `body` | string | No |  |
+| `title` | string | No |  |
+| `color` | string | No |  |
+| `pinned` | boolean | No |  |
 
 #### Responses
 
@@ -696,12 +702,6 @@ Allows you to update tags to multiple contacts at once, you can add or remove ta
 **Tags:** Bulk
 
 **API Version:** `2021-07-28`
-
-#### Parameters
-
-| Parameter | In | Type | Required | Description |
-|-----------|-----|------|----------|-------------|
-| `type` | path | string (enum: `add`, `remove`) | Yes | Tags operation type |
 
 #### Request Body
 
@@ -852,6 +852,7 @@ Please find the list of acceptable values for the `country` field  here
 | `tags` | array of string | No | This field will overwrite all current tags associated with the contact. To update a tags, it is recommended to use the Add Tag or Remove Tag API instead. |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `assignedTo` | string | No | User's Id |
 
@@ -970,9 +971,11 @@ If two separate contacts already exist—one with the same email and another wit
 | `tags` | array of string | No | This field will overwrite all current tags associated with the contact. To update a tags, it is recommended to use the Add Tag or Remove Tag API instead. |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `companyName` | string | No |  |
 | `assignedTo` | string | No | User's Id |
+| `createNewIfDuplicateAllowed` | boolean | No | Controls whether to create a new contact or update an existing duplicate. **Scenario 1:** If this value is `true` and the location allows duplicate contacts, a new contact will be created immediately ... Default: `False` |
 
 **`dndSettings` object properties:**
 
@@ -1091,6 +1094,7 @@ Please find the list of acceptable values for the `country` field  here
 | `tags` | array of string | No |  |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `companyName` | string | No |  |
 | `assignedTo` | string | No | User's Id |
@@ -1136,7 +1140,7 @@ Please find the list of acceptable values for the `country` field  here
 
 Get Contacts
 
- **Note:** This API endpoint is deprecated. Please use the [Search Contacts](https://highlevel.stoplight.io/docs/integrations/dbe4f3a00a106-search-contacts) endpoint instead.
+ **Note:** This API endpoint is deprecated. Please use the [Search Contacts](https://marketplace.gohighlevel.com/docs/ghl/contacts/search-contacts-advanced) endpoint instead.
 
 **Operation ID:** `get-contacts`
 
@@ -1530,58 +1534,6 @@ Delete Contact from Workflow
 | `key` | string | No |  |
 | `field_value` | array of string | No |  |
 
-### Contact
-
-**Type:** `object`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | No |  |
-| `phoneLabel` | string | No |  |
-| `country` | string | No |  |
-| `address` | string | No |  |
-| `source` | string | No |  |
-| `type` | string | No |  |
-| `locationId` | string | No |  |
-| `dnd` | boolean | No |  |
-| `state` | string | No |  |
-| `businessName` | string | No |  |
-| `customFields` | array of object | No |  |
-| `tags` | array of string | No |  |
-| `dateAdded` | string | No |  |
-| `additionalEmails` | array of string | No |  |
-| `phone` | string | No |  |
-| `companyName` | string | No |  |
-| `additionalPhones` | array of string | No |  |
-| `dateUpdated` | string | No |  |
-| `city` | string | No |  |
-| `dateOfBirth` | string | No |  |
-| `firstName` | string | No |  |
-| `lastName` | string | No |  |
-| `firstNameLowerCase` | string | No |  |
-| `lastNameLowerCase` | string | No |  |
-| `email` | string | No |  |
-| `assignedTo` | string | No |  |
-| `followers` | array of string | No |  |
-| `validEmail` | boolean | No |  |
-| `dndSettings` | object | No |  |
-| `opportunities` | array of object | No |  |
-| `postalCode` | string | No |  |
-| `businessId` | string | No |  |
-| `searchAfter` | array of string | No |  |
-
-### ContactOpportunity
-
-**Type:** `object`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes |  |
-| `pipeline_id` | string | Yes |  |
-| `pipeline_stage_id` | string | Yes |  |
-| `monetary_value` | number | Yes |  |
-| `status` | string | Yes |  |
-
 ### ContactsBulkUpateResponse
 
 **Type:** `object`
@@ -1701,6 +1653,7 @@ Delete Contact from Workflow
 | `tags` | array of string | No |  |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `companyName` | string | No |  |
 | `assignedTo` | string | No | User's Id |
@@ -1970,6 +1923,9 @@ Delete Contact from Workflow
 | `userId` | string | No |  |
 | `dateAdded` | string | No |  |
 | `contactId` | string | No |  |
+| `title` | string | No |  |
+| `color` | string | No |  |
+| `pinned` | boolean | No |  |
 
 ### GetNotesListSuccessfulResponseDto
 
@@ -2034,6 +1990,9 @@ Delete Contact from Workflow
 |----------|------|----------|-------------|
 | `userId` | string | No |  |
 | `body` | string | Yes |  |
+| `title` | string | No |  |
+| `color` | string | No |  |
+| `pinned` | boolean | No |  |
 
 ### NumericField
 
@@ -2061,15 +2020,6 @@ Delete Contact from Workflow
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-
-### SearchContactSuccessResponseDto
-
-**Type:** `object`
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `contacts` | array of object | Yes |  |
-| `total` | number | Yes |  |
 
 ### SingleSelectField
 
@@ -2152,6 +2102,7 @@ Delete Contact from Workflow
 | `tags` | array of string | No | This field will overwrite all current tags associated with the contact. To update a tags, it is recommended to use the Add Tag or Remove Tag API instead. |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `assignedTo` | string | No | User's Id |
 
@@ -2163,6 +2114,18 @@ Delete Contact from Workflow
 |----------|------|----------|-------------|
 | `succeded` | boolean | No |  |
 | `contact` | object | No |  |
+
+### UpdateNoteDTO
+
+**Type:** `object`
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `userId` | string | No |  |
+| `body` | string | No |  |
+| `title` | string | No |  |
+| `color` | string | No |  |
+| `pinned` | boolean | No |  |
 
 ### UpdateTagsDTO
 
@@ -2230,9 +2193,11 @@ Delete Contact from Workflow
 | `tags` | array of string | No | This field will overwrite all current tags associated with the contact. To update a tags, it is recommended to use the Add Tag or Remove Tag API instead. |
 | `customFields` | array of object | object | object | object | object | object | object | object | object | No |  |
 | `source` | string | No |  |
+| `dateOfBirth` | object | No | The birth date of the contact. Supported formats: YYYY/MM/DD, MM/DD/YYYY, YYYY-MM-DD, MM-DD-YYYY, YYYY.MM.DD, MM.DD.YYYY, YYYY_MM_DD, MM_DD_YYYY |
 | `country` | string | No |  |
 | `companyName` | string | No |  |
 | `assignedTo` | string | No | User's Id |
+| `createNewIfDuplicateAllowed` | boolean | No | Controls whether to create a new contact or update an existing duplicate. **Scenario 1:** If this value is `true` and the location allows duplicate contacts, a new contact will be created immediately ... Default: `False` |
 
 ### UpsertContactsSuccessfulResponseDto
 
